@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 250 250 249;
+  --surface-secondary: 244 243 241;
+  --ink: 15 15 14;
+  --ink-muted: 100 99 96;
+  --ink-faint: 160 158 153;
+  --accent: 24 95 165;
+  --border: 210 208 202;
+}
+
+.dark {
+  --surface: 12 12 11;
+  --surface-secondary: 20 20 19;
+  --ink: 240 239 236;
+  --ink-muted: 160 158 153;
+  --ink-faint: 100 99 96;
+  --accent: 96 165 250;
+  --border: 38 37 35;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-surface text-ink antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1, 'ss01' 1;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-[15px] leading-relaxed;
+  }
+
+  ::selection {
+    @apply bg-accent/20 text-ink;
+  }
+
+  /* Blog prose styles */
+  .prose {
+    @apply text-ink/90 leading-[1.85] text-[15px];
+  }
+  .prose h2 {
+    @apply text-ink text-xl font-medium mt-10 mb-4 tracking-tight;
+  }
+  .prose h3 {
+    @apply text-ink text-base font-medium mt-8 mb-3;
+  }
+  .prose p {
+    @apply mb-5 text-ink/80;
+  }
+  .prose a {
+    @apply text-accent underline underline-offset-2 decoration-accent/40 hover:decoration-accent transition-colors;
+  }
+  .prose ul {
+    @apply list-disc pl-5 mb-5 space-y-1.5 text-ink/80;
+  }
+  .prose ol {
+    @apply list-decimal pl-5 mb-5 space-y-1.5 text-ink/80;
+  }
+  .prose blockquote {
+    @apply border-l-2 border-border pl-4 text-ink-muted italic my-6;
+  }
+  .prose pre {
+    @apply rounded-lg text-sm overflow-x-auto my-6 p-4;
+    background: rgb(var(--surface-secondary));
+  }
+  .prose code:not(pre code) {
+    @apply font-mono text-[13px] bg-surface-secondary px-1.5 py-0.5 rounded;
+  }
+  .prose hr {
+    @apply border-border my-10;
+  }
+  .prose strong {
+    @apply text-ink font-medium;
+  }
+
+  /* Shiki code block overrides */
+  .astro-code {
+    @apply rounded-lg text-sm overflow-x-auto my-6 p-5;
+  }
+}
+
+/* Scroll reveal utility */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.stagger > *:nth-child(1) { transition-delay: 0ms; }
+.stagger > *:nth-child(2) { transition-delay: 80ms; }
+.stagger > *:nth-child(3) { transition-delay: 160ms; }
+.stagger > *:nth-child(4) { transition-delay: 240ms; }
+.stagger > *:nth-child(5) { transition-delay: 320ms; }
+
+/* Reading progress bar */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: rgb(var(--accent));
+  z-index: 100;
+  transition: width 0.1s linear;
+}

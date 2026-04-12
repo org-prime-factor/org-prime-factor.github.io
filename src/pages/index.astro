@@ -1,0 +1,234 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
+
+const projects = [
+  {
+    name: 'Bliss-NXT',
+    desc: 'Internal customer support platform at Uber. Apollo GraphQL, complex state management, and a lot of cache debugging.',
+    tags: ['React', 'TypeScript', 'GraphQL', 'Apollo'],
+    icon: '⬡',
+    color: 'bg-blue-500/10 text-blue-500',
+    link: '#',
+  },
+  {
+    name: 'ONDC / IGM Integration',
+    desc: 'Grievance management for India\'s open commerce network. Full-stack integration across buyer and seller apps.',
+    tags: ['Node.js', 'React', 'REST'],
+    icon: '◈',
+    color: 'bg-violet-500/10 text-violet-500',
+    link: '#',
+  },
+  {
+    name: 'HCV Bulk Communications',
+    desc: 'High-value customer bulk comms system. Built end-to-end — from UI to backend orchestration.',
+    tags: ['TypeScript', 'React', 'Node.js'],
+    icon: '◎',
+    color: 'bg-emerald-500/10 text-emerald-500',
+    link: '#',
+  },
+  {
+    name: 'CF/DF Entity Fare Migration',
+    desc: 'Large-scale fare model migration. Careful state transitions, zero downtime, cross-team coordination.',
+    tags: ['TypeScript', 'React'],
+    icon: '◇',
+    color: 'bg-amber-500/10 text-amber-500',
+    link: '#',
+  },
+];
+
+const TAG_COLORS: Record<string, string> = {
+  React: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  JavaScript: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  TypeScript: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  Algorithms: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+  GraphQL: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
+  Discipline: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+};
+
+function tagColor(tag: string) {
+  return TAG_COLORS[tag] ?? 'bg-surface-secondary text-ink-muted';
+}
+
+const stack = ['TypeScript', 'React', 'Node.js', 'GraphQL', 'Apollo', 'Tailwind CSS', 'Astro', 'PostgreSQL', 'Git'];
+---
+
+<Base>
+  <!-- Hero -->
+  <section class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+    <div
+      class="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-8 opacity-0 animate-fade-in"
+      style="animation-delay: 0ms; animation-fill-mode: forwards;"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      Open to opportunities · Bangalore, India
+    </div>
+
+    <h1
+      class="text-[38px] sm:text-[52px] font-medium leading-[1.1] tracking-tight text-ink mb-6 opacity-0 animate-fade-up"
+      style="animation-delay: 80ms; animation-fill-mode: forwards;"
+    >
+      Frontend engineer<br />
+      who <span class="text-accent">builds for scale</span><br />
+      and writes about it.
+    </h1>
+
+    <p
+      class="text-[15px] text-ink-muted leading-relaxed max-w-[520px] mb-8 opacity-0 animate-fade-up"
+      style="animation-delay: 160ms; animation-fill-mode: forwards;"
+    >
+      I work on internal platforms at Uber — TypeScript, React, GraphQL, Apollo.
+      This site is where I document what I learn, debug, and figure out.
+    </p>
+
+    <div
+      class="flex items-center gap-3 flex-wrap opacity-0 animate-fade-up"
+      style="animation-delay: 240ms; animation-fill-mode: forwards;"
+    >
+      <a
+        href="/blog"
+        class="inline-flex items-center gap-2 text-[13px] px-4 py-2 bg-ink text-surface rounded-lg hover:bg-ink/90 transition-colors font-medium"
+      >
+        Read the blog
+      </a>
+      <a
+        href="#projects"
+        class="inline-flex items-center gap-2 text-[13px] px-4 py-2 border border-border rounded-lg text-ink-muted hover:text-ink hover:border-ink-muted transition-all"
+      >
+        View work
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div
+      class="flex items-center gap-8 mt-14 pt-8 border-t border-border opacity-0 animate-fade-up"
+      style="animation-delay: 320ms; animation-fill-mode: forwards;"
+    >
+      {[
+        { num: '4+', label: 'Years experience' },
+        { num: '67', label: 'LeetCode solved' },
+        { num: '∞', label: 'Cache bugs debugged' },
+      ].map(stat => (
+        <div>
+          <div class="text-[22px] font-medium tracking-tight text-ink">{stat.num}</div>
+          <div class="text-[12px] text-ink-faint mt-0.5">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" class="border-t border-border">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+      <div class="flex items-center justify-between mb-8">
+        <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Selected work</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 stagger">
+        {projects.map(p => (
+          <a
+            href={p.link}
+            class="reveal group flex flex-col p-5 rounded-xl border border-border hover:border-ink-muted bg-surface hover:bg-surface-secondary transition-all duration-200"
+          >
+            <div class="flex items-start justify-between mb-4">
+              <span class={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-mono ${p.color}`}>
+                {p.icon}
+              </span>
+              <svg class="w-3.5 h-3.5 text-ink-faint group-hover:text-ink group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 17L17 7M17 7H7M17 7v10"/>
+              </svg>
+            </div>
+            <div class="text-[14px] font-medium text-ink mb-2">{p.name}</div>
+            <div class="text-[12px] text-ink-muted leading-relaxed flex-1 mb-4">{p.desc}</div>
+            <div class="flex flex-wrap gap-1.5">
+              {p.tags.map(tag => (
+                <span class="text-[11px] px-2 py-0.5 bg-surface-secondary rounded text-ink-faint border border-border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog -->
+  <section class="border-t border-border">
+    <div class="max-w-3xl mx-auto px-6 py-16">
+      <div class="flex items-center justify-between mb-8">
+        <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">From the blog</span>
+        <a href="/blog" class="text-[12px] text-ink-muted hover:text-ink transition-colors group inline-flex items-center gap-1">
+          All posts
+          <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="divide-y divide-border">
+        {posts.map(post => {
+          const date = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' }).format(post.data.date);
+          const tag = post.data.tags[0];
+          return (
+            <a
+              href={`/blog/${post.slug}`}
+              class="reveal group flex items-start justify-between gap-6 py-5 hover:bg-surface-secondary -mx-3 px-3 rounded-lg transition-colors"
+            >
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  {tag && (
+                    <span class={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded ${tagColor(tag)}`}>
+                      {tag}
+                    </span>
+                  )}
+                  <span class="text-[12px] text-ink-faint">{date}</span>
+                </div>
+                <div class="text-[14px] font-medium text-ink leading-snug mb-1 group-hover:text-accent transition-colors">
+                  {post.data.title}
+                </div>
+                <div class="text-[12px] text-ink-muted leading-relaxed line-clamp-1">
+                  {post.data.description}
+                </div>
+              </div>
+              <div class="text-[11px] text-ink-faint shrink-0 pt-0.5">{post.data.readTime ?? '5 min'}</div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="border-t border-border">
+    <div class="max-w-3xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 gap-12">
+      <div class="reveal">
+        <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint block mb-6">About</span>
+        <p class="text-[14px] text-ink-muted leading-relaxed mb-4">
+          Frontend engineer based in Bangalore. Currently building internal tooling at Uber via Accenture — React, TypeScript, GraphQL, and a lot of Apollo cache archaeology.
+        </p>
+        <p class="text-[14px] text-ink-muted leading-relaxed mb-4">
+          I write about things I've actually had to figure out — at work, in interviews, or at 2am debugging something that should've taken 10 minutes.
+        </p>
+        <p class="text-[14px] text-ink-muted leading-relaxed">
+          Outside of code: LeetCode, self-discipline challenges, and occasionally reading things unrelated to tech.
+        </p>
+      </div>
+
+      <div class="reveal">
+        <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint block mb-6">Stack</span>
+        <div class="flex flex-wrap gap-2">
+          {stack.map(item => (
+            <span class="text-[12px] px-3 py-1.5 border border-border rounded-md text-ink-muted hover:border-ink-muted hover:text-ink transition-all cursor-default">
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

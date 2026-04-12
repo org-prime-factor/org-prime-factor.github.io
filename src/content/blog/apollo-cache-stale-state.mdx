@@ -1,0 +1,51 @@
+---
+title: "Apollo cache and stale state — what actually happened in our attach-trip bug"
+description: "A deep dive into why refetchQueries wasn't enough and how blocking action logic on the backend made it worse."
+date: 2025-04-01
+tags: [React, GraphQL]
+readTime: "5 min read"
+---
+
+This is a post I've been meaning to write for a while. We had a bug in Bliss-NXT that took way longer to fix than it should have — not because it was complex, but because the root cause was split across two layers and each layer looked fine in isolation.
+
+## The bug
+
+The "Attach Trip to Contact" button was going stale after a successful action. You'd click it, the mutation would succeed, but the button wouldn't update — it still showed as if no trip was attached. A hard refresh fixed it. Classic stale state smell.
+
+## What I tried first
+
+My first instinct was Apollo cache. The mutation was running fine — the network tab confirmed a 200. So the data existed on the server. The UI just wasn't reflecting it.
+
+I added `refetchQueries` to the mutation:
+
+```ts
+useMutation(ATTACH_TRIP, {
+  refetchQueries: [{ query: GET_CONTACT_DETAILS }],
+});
+```
+
+Still broken. The query was refetching (I could see the network request), but the component wasn't re-rendering with the new data.
+
+## The actual frontend issue
+
+After some digging, I found the Apollo cache was holding a stale reference. The `GET_CONTACT_DETAILS` query result had a nested `attachedTrip` field, and Apollo was normalizing it by ID. But the mutation response wasn't returning the updated `attachedTrip` object — it was only returning a success flag.
+
+So Apollo had no new data to write into the cache. The refetch would happen, but since the returned object ID was already in cache with the same shape, the `InMemoryCache` wasn't triggering a re-render because from its perspective, nothing changed.
+
+The fix: update the mutation to return the full updated contact object, including `attachedTrip`. Then Apollo can reconcile and write the fresh data.
+
+## The backend issue that made it worse
+
+Here's where it got interesting. Even after the frontend fix, there was a window where the button would still occasionally show as stale.
+
+Turned out the backend had a separate bug: the blocking action success-check was querying a read replica that had replication lag. So when the frontend refetched immediately after the mutation, it was sometimes reading data that hadn't propagated yet.
+
+The fix there was to add a short delay before the refetch, or better — route the post-mutation read to the primary. We went with the primary routing.
+
+## Lessons
+
+- `refetchQueries` only helps if the query response actually contains updated data. If the mutation response is thin, the cache won't know what changed.
+- Stale state bugs that span frontend and backend are the worst kind because each layer looks correct.
+- Always check what the mutation is actually returning, not just whether it succeeded.
+
+Boring fix in the end, but took two separate PRs across two repos to close it.

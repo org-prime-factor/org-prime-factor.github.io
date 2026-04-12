@@ -1,0 +1,74 @@
+---
+title: "Throttle vs debounce — and why I finally get the difference"
+description: "I've explained this in 3 interviews now. Here's the version I wish I had read first."
+date: 2025-03-10
+tags: [JavaScript]
+readTime: "4 min read"
+---
+
+I've been asked about throttle vs debounce in basically every frontend interview I've done. I knew the surface-level answer for a long time, but I couldn't implement either cleanly from scratch without thinking hard. After drilling it properly, here's the mental model that made it click.
+
+## The one-line versions
+
+**Debounce**: wait until you stop, *then* fire.
+
+**Throttle**: fire at most once per interval, no matter how much you call it.
+
+That's it. Everything else follows from this.
+
+## Debounce
+
+Classic use case: search input. You don't want to hit the API on every keystroke. You want to wait until the user pauses.
+
+```ts
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+  let timer: ReturnType<typeof setTimeout>;
+  return function (...args: Parameters<T>) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  } as T;
+}
+```
+
+Every call resets the timer. The function only fires after `delay` ms of silence.
+
+## Throttle
+
+Classic use case: scroll or resize handlers. You want to run something on scroll, but not 60 times per second.
+
+```ts
+function throttle<T extends (...args: any[]) => void>(fn: T, limit: number): T {
+  let lastCall = 0;
+  return function (...args: Parameters<T>) {
+    const now = Date.now();
+    if (now - lastCall >= limit) {
+      lastCall = now;
+      fn(...args);
+    }
+  } as T;
+}
+```
+
+It fires immediately on the first call, then ignores all calls within the interval.
+
+## In React with useRef
+
+In React you need `useRef` to persist the timer across renders without causing re-renders:
+
+```ts
+function useDebounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  return useCallback((...args: Parameters<T>) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(...args), delay);
+  }, [fn, delay]) as T;
+}
+```
+
+## The interview version
+
+When they ask "what's the difference?":
+
+> Debounce delays execution until after a burst of calls stops. Throttle limits how often a function can fire during a continuous stream of calls. Debounce is for "wait until done", throttle is for "don't run more than N times per second".
+
+Then implement one from scratch. That's usually enough.

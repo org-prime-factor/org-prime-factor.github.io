@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const TAG_COLORS: Record<string, string> = {
+  React: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  JavaScript: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  TypeScript: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  Algorithms: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+  GraphQL: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
+  Discipline: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+};
+
+function tagColor(tag: string) {
+  return TAG_COLORS[tag] ?? 'bg-surface-secondary text-ink-muted';
+}
+---
+
+<Base
+  title="Blog — Shahed Ali"
+  description="Writing about React, TypeScript, GraphQL, algorithms, and things I figure out at work."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <div class="mb-12 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
+      <h1 class="text-[28px] font-medium tracking-tight text-ink mb-3">Blog</h1>
+      <p class="text-[14px] text-ink-muted leading-relaxed">
+        Things I've learned, debugged, or thought hard about. No fluff — just what clicked and why.
+      </p>
+    </div>
+
+    <div class="divide-y divide-border">
+      {posts.map((post, i) => {
+        const date = new Intl.DateTimeFormat('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric',
+        }).format(post.data.date);
+        const tag = post.data.tags[0];
+
+        return (
+          <a
+            href={`/blog/${post.slug}`}
+            class="reveal group flex items-start justify-between gap-6 py-6 hover:bg-surface-secondary -mx-3 px-3 rounded-lg transition-colors"
+            style={`transition-delay: ${i * 60}ms`}
+          >
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-2">
+                {tag && (
+                  <span class={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded ${tagColor(tag)}`}>
+                    {tag}
+                  </span>
+                )}
+                <span class="text-[12px] text-ink-faint">{date}</span>
+              </div>
+              <div class="text-[15px] font-medium text-ink leading-snug mb-2 group-hover:text-accent transition-colors">
+                {post.data.title}
+              </div>
+              <div class="text-[13px] text-ink-muted leading-relaxed line-clamp-2">
+                {post.data.description}
+              </div>
+            </div>
+            <div class="text-[11px] text-ink-faint shrink-0 pt-1">{post.data.readTime ?? '5 min'}</div>
+          </a>
+        );
+      })}
+    </div>
+
+    {posts.length === 0 && (
+      <p class="text-[14px] text-ink-faint text-center py-16">No posts yet. First one coming soon.</p>
+    )}
+  </div>
+</Base>
