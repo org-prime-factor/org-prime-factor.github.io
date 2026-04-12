@@ -1,0 +1,172 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const projects = [
+  {
+    name: "GSWS Government Portals",
+    client: "Government of Andhra Pradesh",
+    what: "Built citizen-facing portals for the GSWS Department — Gadapa Gadapaku Mana Prabhutvam, VSWS, Project Tracker, and Village Secretary & Grama Sachivalayam. Implemented real-time user support via WebSocket connections backed by Node.js.",
+    impact:
+      "Serving millions of citizens across Andhra Pradesh. Real-time messaging channel enabled live query resolution for village-level government services.",
+    tags: ["React", "Node.js", "WebSockets", "PostgreSQL"],
+  },
+  {
+    name: "Weiss Analytics",
+    client: "US Real Estate Platform",
+    what: "Developed pluggable data widgets to display US real estate and housing data. Widgets were consumed by multiple third-party platforms. Architected RESTful APIs in Node.js/Express to serve the underlying data.",
+    impact:
+      "Widgets live across multiple US platforms. Clean API layer made third-party integration straightforward.",
+    tags: ["React", "Chart.js", "Node.js", "Express", "REST APIs"],
+  },
+  {
+    name: "FingoIndia",
+    client: "Fintech",
+    what: "Backend engineer role. Designed PostgreSQL schemas, managed financial transactions, implemented server-side caching for performance, and handled AWS deployments and new feature rollouts.",
+    impact:
+      "Scalable backend infrastructure supporting fintech operations with reliable data integrity and performance.",
+    tags: ["Node.js", "PostgreSQL", "AWS", "Redis"],
+  },
+  {
+    name: "Kiwibar.com",
+    client: "File Management Platform",
+    what: "Built critical features — file and directory upload flows, compression pipelines, and efficient S3-backed storage using Next.js and AWS SDK. Focused on UX for large-scale file operations.",
+    impact:
+      "Delivered seamless file/folder sharing experience with efficient storage and retrieval at scale.",
+    tags: ["Next.js", "AWS S3", "AWS SDK", "TypeScript"],
+  },
+  {
+    name: "Unified Authentication Portal",
+    client: "Internal Platform",
+    what: "Designed a centralized authentication repository in React/Node.js to integrate and authenticate across multiple microservices. Implemented JWT-based session management and role-based access control.",
+    impact:
+      "Single auth layer across all services — reduced duplication and made onboarding new microservices straightforward.",
+    tags: ["React", "Node.js", "JWT", "RBAC"],
+  },
+];
+---
+
+<Base
+  title="BeyondScale Technologies · Shahed Ali"
+  description="5 client projects built at BeyondScale — government portals, US platforms, fintech, and file infrastructure."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <!-- Back -->
+    <a
+      href="/#work"
+      class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors mb-12 group"
+    >
+      <svg
+        class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 5l-7 7 7 7"></path>
+      </svg>
+      Back
+    </a>
+
+    <!-- Header -->
+    <div
+      class="mb-12 opacity-0 animate-fade-up"
+      style="animation-fill-mode: forwards;"
+    >
+      <div class="flex items-center gap-2 mb-4">
+        <span
+          class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+          >Jan 2022 – Aug 2024</span
+        >
+        <span class="text-ink-faint">·</span>
+        <span
+          class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+          >Hyderabad</span
+        >
+      </div>
+      <h1
+        class="text-[28px] sm:text-[34px] font-medium tracking-tight text-ink mb-3 leading-tight"
+      >
+        BeyondScale Technologies
+      </h1>
+      <p class="text-[14px] text-ink-muted leading-relaxed mb-2">
+        Full-Stack Developer
+      </p>
+      <p class="text-[15px] text-ink-muted leading-relaxed max-w-lg mt-4">
+        2.5 years building across 5 client projects in different domains —
+        government infrastructure, US real estate, fintech, and file management.
+        Full ownership across the stack on most of them.
+      </p>
+    </div>
+
+    <!-- Projects -->
+    <div class="mb-6">
+      <span
+        class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+        >Projects</span
+      >
+    </div>
+
+    <div class="flex flex-col gap-5">
+      {
+        projects.map((p, i) => (
+          <div
+            class="reveal p-5 rounded-xl border border-border bg-surface"
+            style={`transition-delay: ${i * 60}ms`}
+          >
+            <div class="flex items-start justify-between gap-4 mb-3">
+              <div class="text-[14px] font-medium text-ink">{p.name}</div>
+              <span class="text-[11px] text-ink-faint shrink-0 border border-border px-2 py-0.5 rounded-md">
+                {p.client}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <div class="text-[10px] uppercase tracking-widest text-ink-faint mb-1.5">
+                  What
+                </div>
+                <p class="text-[13px] text-ink-muted leading-relaxed">
+                  {p.what}
+                </p>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase tracking-widest text-ink-faint mb-1.5">
+                  Impact
+                </div>
+                <p class="text-[13px] text-ink-muted leading-relaxed">
+                  {p.impact}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5">
+              {p.tags.map((tag) => (
+                <span class="text-[11px] px-2 py-0.5 bg-surface-secondary rounded text-ink-faint border border-border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Bottom -->
+    <div
+      class="mt-16 pt-8 border-t border-border flex items-center justify-between"
+    >
+      <a
+        href="/work/uber"
+        class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors group"
+      >
+        ← Uber / Bliss-NXT
+      </a>
+      <a
+        href="/#work"
+        class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors group"
+      >
+        Back to work
+      </a>
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,172 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const features = [
+  {
+    name: "HCV Bulk Communications & Vouchers",
+    what: "Sole engineer. Replaced a manual, PII non-compliant agent workflow for high-value customers with a fully automated bulk comms and voucher system.",
+    impact:
+      "Targeted 70–80% reduction in handling time. Processes ~500 vouchers/month globally.",
+    tags: ["React", "TypeScript", "GraphQL", "Apollo"],
+  },
+  {
+    name: "ONDC / IGM 1.0 Integration",
+    what: "Built the VI (Visual Identifier) and Resolution Action required for Uber's IGM 1.0 compliance independently. Integrated across buyer and seller app flows.",
+    impact:
+      "Directly unblocked Uber's India market launch on the government-mandated open commerce network.",
+    tags: ["React", "TypeScript", "GraphQL"],
+  },
+  {
+    name: "CF/DF to Entity Fare Migration",
+    what: "Identified root cause of incorrect refund data shown to agents across the platform. Led migration effort, coordinated across multiple internal teams, and onboarded an external engineer to scale the work.",
+    impact:
+      "Fixed agent-facing refund accuracy platform-wide. Cross-team initiative shipped end-to-end.",
+    tags: ["React", "TypeScript", "Apollo"],
+  },
+  {
+    name: "20+ Visual Identifiers",
+    what: "Designed and shipped Visual Identifiers across ONDC, EST, Moonshot, Cash on Delivery, EATS PRO, Grocery, Tap to Ride, and more — reusable UI components that surface trip/order context to support agents.",
+    impact:
+      "Serving global support teams across 30+ countries through a unified platform.",
+    tags: ["React", "TypeScript", "GraphQL"],
+  },
+  {
+    name: "25+ Backend Service Integrations",
+    what: "Integrated 25+ Uber internal backend services using React, Apollo, and GraphQL to power modular issue resolution widgets within Bliss-NXT.",
+    impact:
+      "Enabled support agents to resolve complex multi-service issues from a single unified portal.",
+    tags: ["GraphQL", "Apollo", "React"],
+  },
+];
+---
+
+<Base
+  title="Uber — Bliss-NXT · Shahed Ali"
+  description="What I've shipped at Uber on Bliss-NXT — the internal customer support platform used by 30+ global teams."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <!-- Back -->
+    <a
+      href="/#work"
+      class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors mb-12 group"
+    >
+      <svg
+        class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 5l-7 7 7 7"></path>
+      </svg>
+      Back
+    </a>
+
+    <!-- Header -->
+    <div
+      class="mb-12 opacity-0 animate-fade-up"
+      style="animation-fill-mode: forwards;"
+    >
+      <div class="flex items-center gap-2 mb-4">
+        <span
+          class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+          >Sep 2024 – Present</span
+        >
+        <span class="text-ink-faint">·</span>
+        <span
+          class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+          >Bangalore</span
+        >
+      </div>
+      <h1
+        class="text-[28px] sm:text-[34px] font-medium tracking-tight text-ink mb-3 leading-tight"
+      >
+        Uber · Bliss-NXT
+      </h1>
+      <p class="text-[14px] text-ink-muted leading-relaxed mb-2">
+        Software Engineer (Contract via Accenture)
+      </p>
+      <p class="text-[15px] text-ink-muted leading-relaxed max-w-lg mt-4">
+        Bliss-NXT is Uber's internal customer support platform — a unified
+        portal used by 30+ global support teams to resolve driver and rider
+        issues. I've been shipping features on it since September 2024, mostly
+        as the sole engineer on each initiative.
+      </p>
+    </div>
+
+    <!-- Features -->
+    <div class="mb-6">
+      <span
+        class="text-[11px] uppercase tracking-widest font-medium text-ink-faint"
+        >What I shipped</span
+      >
+    </div>
+
+    <div class="flex flex-col gap-5">
+      {
+        features.map((f, i) => (
+          <div
+            class="reveal p-5 rounded-xl border border-border bg-surface"
+            style={`transition-delay: ${i * 60}ms`}
+          >
+            <div class="text-[14px] font-medium text-ink mb-3">{f.name}</div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <div class="text-[10px] uppercase tracking-widest text-ink-faint mb-1.5">
+                  What
+                </div>
+                <p class="text-[13px] text-ink-muted leading-relaxed">
+                  {f.what}
+                </p>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase tracking-widest text-ink-faint mb-1.5">
+                  Impact
+                </div>
+                <p class="text-[13px] text-ink-muted leading-relaxed">
+                  {f.impact}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5">
+              {f.tags.map((tag) => (
+                <span class="text-[11px] px-2 py-0.5 bg-surface-secondary rounded text-ink-faint border border-border">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Bottom -->
+    <div
+      class="mt-16 pt-8 border-t border-border flex items-center justify-between"
+    >
+      <a
+        href="/#work"
+        class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors group"
+      >
+        <svg
+          class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M19 12H5M12 5l-7 7 7 7"></path>
+        </svg>
+        Back to work
+      </a>
+      <a
+        href="/work/beyondscale"
+        class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors group"
+      >
+        BeyondScale →
+      </a>
+    </div>
+  </div>
+</Base>

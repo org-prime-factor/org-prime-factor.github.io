@@ -1,0 +1,72 @@
+---
+title: "How this site is built and deployed"
+description: "The tech stack behind this portfolio and blog — Astro, MDX, Tailwind, and GitHub Actions. Why I picked each one and how it all fits together."
+date: 2026-04-12
+tags: [Astro, JavaScript]
+readTime: "6 min read"
+draft: false
+---
+
+I wanted to document how this site works — not as a tutorial, but because I think the decisions behind a stack are more interesting than the stack itself.
+
+## The goal
+
+A portfolio that looks good, a blog I can actually write in, and zero servers to manage. That's it. No CMS dashboard, no deployment pipeline to babysit, no monthly hosting bill.
+
+## Why Astro
+
+I evaluated a few options. Plain React with Vite works, but you'd have to wire up a markdown pipeline yourself — it's doable but annoying. Next.js static export works too, but it's overkill for a personal site and you lose the simplicity. Jekyll is old and I didn't want to touch Ruby.
+
+Astro fit because it was built exactly for this use case — content-heavy sites that need to be fast. A few things that sold me:
+
+**It ships zero JavaScript by default.** Every blog post is pure static HTML. No React hydration, no bundle to parse. The browser just gets a page.
+
+**File-based routing.** `src/pages/blog/[slug].astro` is all it takes to generate individual post pages. Astro reads from a content collection and handles the rest at build time.
+
+**MDX support out of the box.** I write posts in `.mdx` files — standard Markdown with the option to drop in a React component if I ever need something interactive mid-post. Syntax highlighting via Shiki is built in, so code blocks look good without any extra config.
+
+**React Islands.** If I want animation or interactivity on a specific section, I can use a React component there with `client:load` or `client:visible`. The rest of the page stays static. No global React bundle.
+
+## Content Collections
+
+Blog posts live in `src/content/blog/`. Each post is an `.mdx` file with frontmatter at the top:
+
+```mdx
+---
+title: "Post title"
+description: "One liner for SEO and listings"
+date: 2026-04-12
+tags: [React, TypeScript]
+readTime: "6 min read"
+---
+```
+
+Astro validates this against a schema defined in `src/content/config.ts` using Zod. If I forget a required field or put a string where a date should be, the build fails and tells me exactly where. Caught a couple of mistakes that way already.
+
+## Styling
+
+Tailwind CSS for everything. I'm used to it, it's fast to write, and it keeps styles colocated with the markup instead of scattered across CSS files.
+
+The design uses CSS custom properties for the color system — things like `--ink`, `--surface`, `--accent` — so dark mode is a single class toggle on the `<html>` element. Light mode, dark mode, and system default all work without any JavaScript framework for theme management.
+
+Fonts are Geist — variable font loaded via `@font-face` pointing at `.woff2` files bundled directly from the npm package. No Google Fonts, no external requests at load time.
+
+## Deployment
+
+The whole thing deploys to GitHub Pages via a GitHub Actions workflow. The flow is:
+
+1. I write a post or make a change
+2. `git push` to `main`
+3. GitHub Action triggers — runs `npm ci` then `astro build`
+4. The `dist/` folder gets uploaded as a Pages artifact
+5. GitHub deploys it
+
+Start to live: about 90 seconds.
+
+The workflow file lives at `.github/workflows/deploy.yml` and it's about 40 lines. No external services, no deploy keys to rotate, no dashboard to log into. Just git.
+
+## What I'd change
+
+Nothing major right now. If the blog grows and I want a proper CMS for writing on mobile, I'd look at Keystatic or Tina — both write back to the repo as MDX files, so the deployment pipeline stays exactly the same.
+
+For now, VS Code and git is enough.
