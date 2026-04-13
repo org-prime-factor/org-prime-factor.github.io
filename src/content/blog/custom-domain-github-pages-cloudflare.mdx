@@ -1,0 +1,109 @@
+---
+title: "How I connected shahed.fyi to GitHub Pages using Cloudflare"
+description: "A walkthrough of DNS records, how domain routing actually works, and why each step matters — from buying a domain to HTTPS being live."
+date: 2026-04-13
+tags: [DevOps, JavaScript]
+readTime: "7 min read"
+draft: false
+---
+
+import Explainer from '../../components/Explainer.astro';
+
+This site is hosted on GitHub Pages and served via a custom domain — `shahed.fyi`. Getting there involved DNS records, certificate provisioning, and a bit of waiting. Here's exactly what happened and why.
+
+## The goal
+
+GitHub Pages gives you a free URL out of the box — `username.github.io`. That works, but I wanted `shahed.fyi`. The challenge is GitHub Pages is a static host, not a domain registrar. So you need to buy a domain separately and point it at GitHub's servers.
+
+## Buying the domain
+
+I bought `shahed.fyi` on Cloudflare Registrar. Cloudflare sells domains at cost — no markup, no renewal surprises. `shahed.fyi` cost $5.20/year which is genuinely cheap.
+
+The moment you buy a domain on Cloudflare, they automatically become your nameserver. This means Cloudflare controls your DNS — which is exactly what we want because we need to add DNS records there.
+
+## What DNS actually is
+
+DNS is the internet's phonebook. When someone types `shahed.fyi` in their browser, their computer doesn't know where to go. It asks a DNS resolver — "what IP address is shahed.fyi?" The resolver looks up the DNS records and returns an answer. The browser then connects to that IP.
+
+Without DNS records, your domain is just a name with nowhere to point.
+
+## The records we added
+
+We added 5 records in Cloudflare — 4 A records and 1 CNAME.
+
+### A records (4 of them)
+Type: A  |  Name: @  |  Content: 185.199.108.153
+Type: A  |  Name: @  |  Content: 185.199.109.153
+Type: A  |  Name: @  |  Content: 185.199.110.153
+Type: A  |  Name: @  |  Content: 185.199.111.153
+
+An **A record** maps a domain name to an IPv4 address. The `@` means the root domain — `shahed.fyi` itself (not `www.shahed.fyi`).
+
+These 4 IP addresses are GitHub Pages' servers. GitHub operates multiple IPs for redundancy — if one goes down, traffic routes to another. By adding all 4, we ensure the domain always resolves even if one of GitHub's IPs is unavailable.
+
+### CNAME record (1)
+
+Type: CNAME  |  Name: www  |  Content: org-prime-factor.github.io
+
+
+A **CNAME record** maps one domain name to another domain name (not an IP). This handles `www.shahed.fyi` — it points to my GitHub Pages URL, which GitHub then resolves to the correct IP internally.
+
+Without this, `www.shahed.fyi` would go nowhere. People type `www` out of habit, so it's worth covering.
+
+### Why DNS only, not proxied
+
+Cloudflare offers to proxy your traffic through their network (the orange cloud). For most sites that's great — DDoS protection, caching, performance. But GitHub Pages needs to verify your domain ownership directly, and it does this by checking your DNS records itself. If Cloudflare proxies the traffic, GitHub sees Cloudflare's IP instead of yours and the verification fails. So we set all records to **DNS only** (grey cloud).
+
+## The CNAME file in the repo
+
+GitHub also needs to know which custom domain to serve for a given repo. This is done via a file called `CNAME` in the `public/` folder:
+
+shahed.fyi
+
+One line, no formatting. When Astro builds the site, this file ends up in the `dist/` root and gets deployed to GitHub Pages. GitHub reads it and knows — requests coming in for `shahed.fyi` should be served from this repo.
+
+## How the redirect works
+
+Once everything is set up, here's the full journey when someone visits `shahed.fyi`:
+
+1. Browser asks DNS resolver — "what's the IP for shahed.fyi?"
+2. DNS resolver checks Cloudflare's nameservers
+3. Cloudflare returns one of the 4 GitHub IP addresses
+4. Browser connects to that GitHub server
+5. GitHub sees the request is for `shahed.fyi`
+6. GitHub checks its records — finds the `CNAME` file in my repo
+7. GitHub serves my site's static files
+8. Browser renders the page
+
+The whole thing happens in milliseconds.
+
+<Explainer
+  question="Wait — why did DNS know to check Cloudflare specifically?"
+  teaser="You bought a domain. Now how does anyone find it? TLDs, registries, registrars — the full picture."
+  href="/blog/how-does-anyone-find-your-domain"
+/>
+
+## HTTPS — how it got provisioned
+
+Once GitHub verified the DNS records were correct, it automatically requested a TLS certificate from **Let's Encrypt** — a free, automated certificate authority. This is what enables HTTPS.
+
+The process took about 15–20 minutes. GitHub showed a progress indicator — "1 of 3, Certificate Requested: Authorization created" — while Let's Encrypt verified domain ownership and issued the certificate.
+
+Once complete, I ticked **"Enforce HTTPS"** in GitHub Pages settings. Now any request to `http://shahed.fyi` automatically redirects to `https://shahed.fyi`. The padlock shows up, the browser doesn't warn, and traffic is encrypted end to end.
+
+## The full setup in one place
+
+| What | Where | Why |
+|------|-------|-----|
+| Buy domain | Cloudflare Registrar | At-cost pricing, DNS control built in |
+| 4 A records → GitHub IPs | Cloudflare DNS | Points root domain to GitHub's servers |
+| CNAME www → github.io | Cloudflare DNS | Handles www subdomain |
+| CNAME file in repo | `public/CNAME` | Tells GitHub which domain this repo owns |
+| Custom domain in settings | GitHub Pages | Triggers DNS verification |
+| Enforce HTTPS | GitHub Pages | Forces all traffic to HTTPS |
+
+## What it costs
+
+Domain: $5.20/year. Everything else — GitHub Pages hosting, Cloudflare DNS, Let's Encrypt certificate — free.
+
+Total infrastructure cost for this site: **$5.20/year**.

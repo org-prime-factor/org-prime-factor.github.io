@@ -1,0 +1,99 @@
+---
+title: "You bought a domain. Now how does anyone find it?"
+description: "Why DNS knew to check Cloudflare specifically — TLDs, registries, registrars, nameservers, and how the whole chain works."
+date: 2026-04-13
+tags: [DevOps]
+readTime: "6 min read"
+draft: false
+---
+
+import Explainer from '../../components/Explainer.astro';
+
+When I set up `shahed.fyi` on GitHub Pages, I added DNS records in Cloudflare and everything worked. But one thing bugged me — how did the internet know to check Cloudflare's nameservers specifically? I bought a domain. Who told the world that Cloudflare was in charge of it?
+
+Here's the full picture.
+
+## The hierarchy nobody explains
+
+The internet's domain system is a hierarchy with four layers. Most tutorials skip straight to "add an A record" without explaining why that works. Let's go top to bottom.
+
+### ICANN — the root authority
+
+At the very top is **ICANN** — the Internet Corporation for Assigned Names and Numbers. They don't sell domains. They don't host anything. They're the governance layer — they decide which TLDs (top-level domains) are allowed to exist and who gets to operate them.
+
+Every `.com`, `.fyi`, `.dev`, `.in` — ICANN approved it and assigned an operator.
+
+### TLD Registries — who owns the extension
+
+Each TLD is operated by a **registry**. The registry maintains the master list of every domain registered under that extension.
+
+`.fyi` is operated by **Identity Digital** (formerly Donuts Inc.) — a company that runs hundreds of TLDs. They own the authoritative database of every `*.fyi` domain in existence.
+
+`.com` is operated by **Verisign**. `.in` is operated by **NIXI** (National Internet Exchange of India). Every TLD has exactly one registry.
+
+The registry doesn't sell to individuals directly. That's the registrar's job.
+
+### Registrars — the shop you buy from
+
+A **registrar** is an ICANN-accredited company that sells domain names to the public. Cloudflare, Namecheap, GoDaddy, Google Domains — all registrars.
+
+When I bought `shahed.fyi` on Cloudflare:
+1. Cloudflare talked to Identity Digital's registry
+2. Identity Digital recorded: "shahed.fyi is registered, nameservers = Cloudflare"
+3. Cloudflare gave me control of the domain
+
+That second step is the key one. The registry now has a record saying Cloudflare's nameservers are authoritative for `shahed.fyi`.
+
+### Nameservers — the actual answer machines
+
+**Nameservers** are servers that hold your DNS records — the A records, CNAMEs, MX records. When someone asks "what IP is shahed.fyi?", the nameserver is what answers.
+
+Because Cloudflare is my registrar, they set their own nameservers automatically:
+rosemary.ns.cloudflare.com
+tate.ns.cloudflare.com
+
+These are in the Identity Digital registry as the authority for `shahed.fyi`. So when anyone queries `shahed.fyi`, the trail leads to Cloudflare's nameservers, which return my DNS records.
+
+## The full resolution chain
+
+Here's exactly what happens when someone types `shahed.fyi`:
+
+Browser
+↓ asks
+Recursive resolver (your ISP or 8.8.8.8)
+↓ asks
+Root nameservers — "who handles .fyi?"
+↓ responds
+.fyi TLD nameservers (Identity Digital) — "for shahed.fyi, ask Cloudflare"
+↓ responds
+Cloudflare nameservers — "shahed.fyi = 185.199.108.153"
+↓ responds
+Recursive resolver tells browser the IP
+↓
+Browser connects to GitHub's server at that IP
+
+Every step is cached aggressively — that's what TTL (Time To Live) is. So most of the time, your ISP's resolver already has the answer cached and skips several steps. The full chain only runs when the cache is cold or expired.
+
+## Why it took time to propagate
+
+When I first added the DNS records, `shahed.fyi` didn't load immediately. That's because of caching.
+
+Various resolvers across the world had already cached "shahed.fyi doesn't exist" or had old records. Each cache has a TTL — once it expires, the resolver fetches fresh records. Until then, it serves the stale cached version.
+
+This is what "DNS propagation" means — it's not that the records are slowly spreading, it's that old caches around the world are slowly expiring. Cloudflare's TTL is typically 5 minutes for new records, but upstream caches can be longer. Full global propagation can take anywhere from minutes to 24 hours.
+
+## Why Cloudflare specifically
+
+To directly answer the original question — DNS knew to check Cloudflare because Identity Digital's registry has a record saying so. That record was written the moment I completed the purchase on Cloudflare Registrar.
+
+If I had bought the domain on Namecheap, their nameservers would be there instead. If I then manually pointed the nameservers to Cloudflare (which you can do), Identity Digital's record would update and queries would start going to Cloudflare instead.
+
+The registrar sets the nameservers. The registry records which nameservers to trust. That's the whole thing.
+
+---
+
+<Explainer
+  question="How did I use all of this to connect shahed.fyi to GitHub Pages?"
+  teaser="The exact DNS records, the CNAME file, HTTPS provisioning — the full setup walkthrough."
+  href="/blog/custom-domain-github-pages-cloudflare"
+/>

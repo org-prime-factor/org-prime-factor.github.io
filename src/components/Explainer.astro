@@ -1,0 +1,32 @@
+---
+interface Props {
+  question: string;
+  teaser: string;
+  href: string;
+}
+
+const { question, teaser, href } = Astro.props;
+---
+
+<a
+  href={href}
+  class="group flex items-start justify-between gap-4 my-8 p-5 rounded-xl border border-border hover:border-accent bg-surface hover:bg-surface-secondary transition-all duration-200 no-underline"
+>
+  <div class="flex gap-3 items-start">
+        <span class="text-lg mt-0.5">🤔</span>
+        <div>
+            <div class="text-[13px] font-medium text-ink mb-1 group-hover:text-accent transition-colors">
+                {question}
+            </div>
+            <div class="text-[12px] text-ink-muted leading-relaxed">
+                {teaser}
+            </div>
+        </div>
+  </div>
+    <div class="shrink-0 flex items-center gap-1 text-[12px] text-accent mt-0.5 group-hover:gap-2 transition-all">
+        Read
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+    </div>
+</a>
