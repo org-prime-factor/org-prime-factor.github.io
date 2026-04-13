@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="About — Shahed Ali"
+  description="Software engineer based in Bangalore. Here's who I am, what I'm working on, and how to reach me."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+
+    <!-- Header -->
+    <div class="mb-12 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
+      <h1 class="text-[28px] sm:text-[34px] font-medium tracking-tight text-ink mb-4 leading-tight">
+        Hey, I'm Shahed.
+      </h1>
+      <p class="text-[15px] text-ink-muted leading-relaxed">
+        Software engineer based in Bangalore. This is the longer version.
+      </p>
+    </div>
+
+    <!-- About sections -->
+    <div class="space-y-10 mb-16">
+
+      <div class="reveal">
+        <h2 class="text-[11px] uppercase tracking-widest font-medium text-ink-faint mb-4">Work</h2>
+        <p class="text-[14px] text-ink-muted leading-relaxed mb-3">
+          I'm currently a Software Engineer at Uber (via Accenture), working on Bliss-NXT — an internal customer support platform used by 30+ global teams. Most of what I ship there I own end-to-end, which means I've learned to be comfortable with ambiguity and uncomfortable with broken things.
+        </p>
+        <p class="text-[14px] text-ink-muted leading-relaxed">
+          Before Uber, I spent 2.5 years at BeyondScale Technologies as a full-stack developer — built government portals serving millions of citizens in Andhra Pradesh, a fintech backend, US real estate data platforms, and a file management system. That's where I learned that good software is mostly about understanding the problem, not the stack.
+        </p>
+      </div>
+
+      <div class="reveal">
+        <h2 class="text-[11px] uppercase tracking-widest font-medium text-ink-faint mb-4">Open to</h2>
+        <p class="text-[14px] text-ink-muted leading-relaxed">
+          Interesting frontend or full-stack roles where I can own things end-to-end. I'm not looking for just a job — I'm looking for a place where the work actually matters and the people are serious about it. If that sounds like your team, I'd love to talk.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Contact form -->
+    <div class="reveal border-t border-border pt-12">
+      <h2 class="text-[11px] uppercase tracking-widest font-medium text-ink-faint mb-2">Get in touch</h2>
+      <p class="text-[14px] text-ink-muted leading-relaxed mb-8">
+        Whether it's a role, a collab, or just something you read here that you want to talk about — my inbox is open.
+      </p>
+
+      <div id="form-success" class="hidden mb-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+        <p class="text-[13px] text-emerald-600 dark:text-emerald-400">✓ Message sent. I'll get back to you soon.</p>
+      </div>
+
+      <div id="form-error" class="hidden mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+        <p class="text-[13px] text-red-600 dark:text-red-400">Something went wrong. Email me directly at career@shahed.fyi</p>
+      </div>
+
+      <form id="contact-form" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[11px] uppercase tracking-widest text-ink-faint block mb-2">Name</label>
+            <input
+              type="text"
+              id="name"
+              required
+              placeholder="Your name"
+              class="w-full px-4 py-2.5 text-[13px] bg-surface border border-border rounded-lg text-ink placeholder:text-ink-faint focus:outline-none focus:border-ink-muted transition-colors"
+            />
+          </div>
+          <div>
+            <label class="text-[11px] uppercase tracking-widest text-ink-faint block mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              required
+              placeholder="your@email.com"
+              class="w-full px-4 py-2.5 text-[13px] bg-surface border border-border rounded-lg text-ink placeholder:text-ink-faint focus:outline-none focus:border-ink-muted transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] uppercase tracking-widest text-ink-faint block mb-2">Message</label>
+          <textarea
+            id="message"
+            required
+            rows="5"
+            placeholder="What's on your mind..."
+            class="w-full px-4 py-2.5 text-[13px] bg-surface border border-border rounded-lg text-ink placeholder:text-ink-faint focus:outline-none focus:border-ink-muted transition-colors resize-none"
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-end pt-2">
+          <button
+            type="submit"
+            id="submit-btn"
+            class="inline-flex items-center gap-2 text-[13px] px-5 py-2.5 bg-ink text-surface rounded-lg hover:bg-ink/90 transition-colors font-medium disabled:opacity-50"
+          >
+            Send message
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</Base>
+
+<script define:vars={{
+  EMAILJS_KEY: import.meta.env.PUBLIC_EMAILJS_KEY,
+  EMAILJS_SERVICE: import.meta.env.PUBLIC_EMAILJS_SERVICE,
+  EMAILJS_TEMPLATE: import.meta.env.PUBLIC_EMAILJS_TEMPLATE,
+}}>
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  script.onload = () => {
+    emailjs.init(EMAILJS_KEY);
+  };
+  document.head.appendChild(script);
+
+  const form = document.getElementById('contact-form');
+  const btn = document.getElementById('submit-btn');
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE,
+        EMAILJS_TEMPLATE,
+        { name, email, message }
+      );
+
+      success?.classList.remove('hidden');
+      error?.classList.add('hidden');
+      form.reset();
+    } catch {
+      error?.classList.remove('hidden');
+      success?.classList.add('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send message';
+    }
+  });
+</script>
