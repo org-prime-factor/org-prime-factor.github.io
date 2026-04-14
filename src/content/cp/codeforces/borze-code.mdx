@@ -1,0 +1,115 @@
+---
+problemName: "Borze"
+platform: "Codeforces"
+difficulty: "800"
+contestId: "32"
+problemId: "B"
+problemLink: "https://codeforces.com/problemset/problem/32/B"
+submissionLink: "https://codeforces.com/contest/32/submission/371126795"
+tags: [implementation, strings]
+date: 2026-04-14
+verdict: "AC"
+---
+
+This one looked trivial. Three symbols, three digits, decode the string. I had the right general idea from the start — iterate through and decode. But my first mental model was subtly broken in a way that would have caused real bugs.
+
+## The problem
+
+Ternary numbers use digits 0, 1, and 2. In Borze encoding:
+
+- `.` → 0
+- `-.` → 1
+- `--` → 2
+
+Given a valid Borze-encoded string, decode it back to the original ternary number.
+
+## My first instinct
+
+I thought: keep two variables — `dot` and `dash`. Accumulate dashes as I go, and when I hit a dot, decide what digit I just decoded based on how many dashes I've seen.
+
+When `dash == 0` and I see `.` → digit is `0`  
+When `dash == 1` and I see `.` → digit is `1`, reset dash  
+When `dash == 2` → digit is `2`, reset dash  
+
+My logic also said: when `dash == 2` and I then hit a `.`, that means I got `2` followed by `0`.
+
+That last part is where it starts to fall apart.
+
+## Why that logic is broken
+
+The encoding is chunk-based, not counter-based.
+
+`--` is already a complete chunk. It means 2. The next `.` is a completely new chunk that means 0. There's no "dash == 2 then dot = 20" — those are two separate digits decoded from two separate chunks.
+
+My counter approach delayed decisions. But the encoding forces immediate decisions — as soon as you see `--`, you're done, that's a 2. You don't wait for a dot.
+
+The clean mental model is:
+
+- Read current character
+- If `.` → immediately emit 0
+- If `-` → immediately look at the next character
+  - Next is `.` → emit 1, advance past both
+  - Next is `-` → emit 2, advance past both
+
+No counters. No accumulation. Each chunk is self-contained.
+
+## The code I ended up with
+
+```cpp
+#include<iostream>
+using namespace std;
+
+int main(){
+    int dash = 0;
+    string borzeCode = "";
+    string s;
+    getline(cin, s);
+    for(int i = 0; i < s.length(); i++){
+        char num;
+        char code = s[i];
+        if(code == '.'){
+            if(dash == 0){
+                num = '0';
+            } else if(dash == 1){
+                num = '1';
+                dash = 0;
+            }
+        } else if(code == '-'){
+            dash++;
+            if(dash == 2){
+                num = '2';
+                dash = 0;
+            } else {
+                continue;
+            }
+        }
+        borzeCode += num;
+    }
+    cout << borzeCode << endl;
+    return 0;
+}
+```
+
+The parsing logic survived mostly intact. What changed was the output — I switched from `int ans` to `string borzeCode`.
+
+## The bug I almost shipped
+
+My original code used `int ans` and built the result like:
+
+```cpp
+ans = (ans * 10) + num;
+```
+
+This looks reasonable but silently destroys leading zeroes. If the decoded sequence is `0010`, an int stores it as `10`. The problem explicitly says the output can have leading zeroes.
+
+Switching to a string and appending characters fixes this completely — you're not doing arithmetic, you're decoding a sequence. Treating it as a number was the wrong abstraction from the start.
+
+## What I actually learned
+
+Two things stuck with me here.
+
+First: **encoding schemes are chunk-based, not character-based**. When you see `-`, you can't make a decision yet — you need the next character. The decision boundary is the chunk, not the character. Trying to accumulate state across characters fights against that structure.
+
+Second: **the output type matters**. Reaching for `int` is a reflex. But when a problem says "output may have leading zeroes" — that's a signal. The answer is a digit sequence, not a number. A string models that correctly. An int does not.
+
+The decoding logic was fine all along. I just had the wrong container for the result.

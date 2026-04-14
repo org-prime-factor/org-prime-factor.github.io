@@ -32,10 +32,13 @@ Without DNS records, your domain is just a name with nowhere to point.
 We added 5 records in Cloudflare — 4 A records and 1 CNAME.
 
 ### A records (4 of them)
-Type: A  |  Name: @  |  Content: 185.199.108.153
-Type: A  |  Name: @  |  Content: 185.199.109.153
-Type: A  |  Name: @  |  Content: 185.199.110.153
-Type: A  |  Name: @  |  Content: 185.199.111.153
+| Type | Name | Content         |
+| ---- | ---- | --------------- |
+| A    | @    | 185.199.108.153 |
+| A    | @    | 185.199.109.153 |
+| A    | @    | 185.199.110.153 |
+| A    | @    | 185.199.111.153 |
+
 
 An **A record** maps a domain name to an IPv4 address. The `@` means the root domain — `shahed.fyi` itself (not `www.shahed.fyi`).
 
@@ -78,7 +81,7 @@ Once everything is set up, here's the full journey when someone visits `shahed.f
 The whole thing happens in milliseconds.
 
 <Explainer
-  question="Wait — why did DNS know to check Cloudflare specifically?"
+  question="Wait — How did DNS know to check Cloudflare specifically?"
   teaser="You bought a domain. Now how does anyone find it? TLDs, registries, registrars — the full picture."
   href="/blog/how-does-anyone-find-your-domain"
 />

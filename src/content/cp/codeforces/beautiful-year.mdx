@@ -1,0 +1,128 @@
+---
+problemName: "Beautiful Year"
+platform: "Codeforces"
+difficulty: "800"
+contestId: "271"
+problemId: "A"
+problemLink: "https://codeforces.com/problemset/problem/271/A"
+submissionLink: "https://codeforces.com/contest/271/submission/371140881"
+tags: [brute force, implementation]
+date: 2026-04-14
+verdict: "AC"
+---
+
+Sometimes the lesson isn't how to solve a problem. It's recognizing when a simple solution is already the best one — and trusting it.
+
+## The problem
+
+Given a year `y` (between 1000 and 9000), find the smallest year strictly greater than `y` where all digits are distinct.
+
+For context: 2013 was the first year after 1987 with all distinct digits.
+
+## My first instinct
+
+My first thought was: iterate from `y+1`, check each number, stop at the first valid one.
+
+Then immediately I second-guessed myself.
+
+"That's brute force. I can do better. What if I construct the answer directly — take each digit position, find the lowest valid digit, build the number?"
+
+That sounds smarter. It isn't.
+
+## Why the "smart" approach falls apart
+
+To build the answer digit by digit, you need to:
+
+- Track which digits are already used
+- Handle carries (what if no valid digit fits in the current position?)
+- Backtrack when you're stuck — go back to a previous position and try the next available digit
+- Make sure the constructed number is actually greater than `y`
+
+That's a constraint satisfaction problem. It's backtracking. It works, but it's significantly more code, more edge cases, and more places to make mistakes.
+
+Meanwhile the brute force:
+
+- Range is small (at most a few thousand checks)
+- Each check is just 4 digits
+- Total work is tiny
+
+That's not just fast enough — it's instant. There's nothing to optimize.
+
+## The boundary bug that got me
+
+My first version had:
+
+```cpp
+for(int i = n + 1; i < 9000; i++)
+```
+
+Wrong answer on test 7.
+
+Then I tried <= 9000, then <= 9999.
+
+The issue wasn’t about going beyond 4 digits — the answer is always a 4-digit number. The real mistake was adding an artificial upper bound at all.
+
+Even if the valid answer exists within the range, restricting the loop incorrectly can skip valid candidates or create edge-case failures.
+
+The simplest and safest fix:
+
+```cpp
+for(int i = n + 1; ; i++)
+```
+
+The problem guarantees an answer exists, so just keep going until you find it.
+
+**The final code**
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int n;
+    cin >> n;
+    unordered_set<int> unq;
+    for(int i = n + 1; ; i++){
+        int num = i;
+        int a = num % 10; num /= 10;
+        int b = num % 10; num /= 10;
+        int c = num % 10; num /= 10;
+        int d = num % 10;
+        unq = {a, b, c, d};
+        if(unq.size() == 4){
+            cout << i << endl;
+            break;
+        }
+    }
+    return 0;
+}
+```
+
+Using an unordered_set to check distinctness is clean — insert all digits, if size is equal to the number of digits, they’re unique. Alternatively, you can do direct comparisons (a!=b, etc.), which avoids extra memory and is slightly faster.
+
+The AC that felt wrong
+
+Got AC. Immediately felt uneasy about it.
+
+That feeling came from somewhere real — brute force usually means you've missed something. The reflex to optimize is mostly good. But it needs one extra check:
+
+Does the problem actually require optimization?
+
+Here it didn’t.
+
+What I actually learned
+
+Three things from this one.
+
+Don’t let instinct override analysis.
+“This feels like it needs optimization” is a hypothesis, not a fact. Check constraints first.
+
+Backtracking is powerful — but recognize when you're reaching for it unnecessarily.
+The digit-construction idea was valid thinking. It just didn’t fit here.
+
+Unnecessary bounds are a common source of bugs.
+If you add a limit to a loop, ask: is this required, or am I assuming it?
+
+The code is short. The debugging took longer than the coding.
+
+That ratio is pretty normal.

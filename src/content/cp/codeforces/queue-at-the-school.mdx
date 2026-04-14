@@ -1,0 +1,121 @@
+---
+problemName: "Queue at the School"
+platform: "Codeforces"
+difficulty: "800"
+contestId: "266"
+problemId: "B"
+problemLink: "https://codeforces.com/problemset/problem/266/B"
+submissionLink: "https://codeforces.com/contest/266/submission/371121815"
+tags: [implementation, simulation]
+date: 2026-04-14
+verdict: "AC"
+---
+
+This is not a hard problem. The code is maybe 15 lines. But it took me longer than it should have to understand what was being asked — and that gap taught me something more useful than the solution itself.
+
+## The problem
+
+There's a queue of boys (B) and girls (G). Boys feel awkward standing in front of girls, so they let them pass. Every second, wherever a B is directly followed by a G, they swap. Given the initial arrangement and a time t, find the final arrangement after t seconds.
+
+Simple enough on the surface.
+
+## Where I got confused
+
+My first instinct was to read this line:
+
+> "if at time x a boy stands on the i-th position and a girl stands on the (i+1)-th position, then at time x+1 the i-th position will have a girl and the (i+1)-th position will have a boy"
+
+And immediately start thinking about how to scan through the string and swap things.
+
+The problem was I conflated two things:
+
+- `i` — position in the queue
+- `t` — seconds elapsed
+
+I was trying to use `t` as a loop condition inside the traversal. Something like "iterate until we reach index t". That's completely wrong, but it made sense in my head because I was reading the problem like a step-by-step algorithm rather than a state description.
+
+## The thing that actually unlocked it
+
+The phrase **"at time x → at time x+1"** is doing something specific. It's not describing a procedure. It's describing a state transition.
+
+It's saying: here is a complete snapshot of the queue at time x. Here is the rule that produces the snapshot at time x+1.
+
+That implies you must:
+- Look at the full current state
+- Produce a new full state based on it
+- Repeat t times
+
+Not scan and mutate as you go. Not use t as a position. Two completely separate loops — one for time, one for position.
+
+The problem never says "simultaneously". It never says "full snapshot". But "at time x → at time x+1" forces that interpretation once you see it.
+
+## Dry run that made it click
+
+Input:
+5 2
+
+BGGBG
+
+Second 0 (initial): `B G G B G`
+
+Second 1 — scan for BG pairs using the original state:
+
+`B G G B G`
+- i=0: B,G → swap → skip i=1
+- i=2: G,B → not BG, continue
+- i=3: B,G → swap → skip i=4
+
+After second 1: `G B G G B`
+
+After second 2 on `G B G G B`:
+- i=1: B,G → swap → skip i=2
+- i=3: G,B → not BG
+
+Result: `G G B G B`
+
+Final answer: `GGBGB` ✅
+
+## The code
+
+Once the mental model clicked, the code wrote itself:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int n, t;
+    string q = "";
+    cin >> n >> t;
+    while(n--){
+        char person;
+        cin >> person;
+        q += person;
+    }
+    while(t--){
+        for(int i = 0; i < q.length() - 1; i++){
+            if(q[i] == 'B' && q[i+1] == 'G'){
+                q[i] = 'G';
+                q[i+1] = 'B';
+                i++;  // skip next — already processed
+            }
+        }
+    }
+    cout << q << endl;
+    return 0;
+}
+```
+
+The `i++` inside the if block is important — after a swap, you skip the next index because it's already been processed as part of the pair. Without it you'd be looking at the just-swapped G and potentially swapping it again in the same second.
+
+The outer `while(t--)` is the time loop. The inner `for` is the position scan. They're completely separate — t has nothing to do with position.
+
+## What I actually learned
+
+The code is not the lesson here.
+
+The lesson is: **competitive programming problems describe systems, not algorithms**. When you read a problem, your job isn't to immediately translate it to code. Your job is to understand the system being described — then the code follows naturally.
+
+"at time x → at time x+1" is state transition language. Once you recognize that pattern, a whole class of simulation problems becomes easier to read.
+
+This took me longer than it should have. But I'll recognize it instantly next time.
