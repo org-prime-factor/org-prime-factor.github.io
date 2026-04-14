@@ -1,8 +1,9 @@
+---
 import Base from './Base.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
-  problem: CollectionEntry<'cp'>;
+  problem: CollectionEntry<"cp">;
 }
 
 const { problem } = Astro.props;
