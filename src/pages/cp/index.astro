@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const problems = await getCollection('cp');
+
+const platformIcons: Record<string, string> = {
+  Codeforces: '⬡',
+  LeetCode: '◈',
+  AtCoder: '◎',
+  CodeChef: '◇',
+};
+
+const platformColors: Record<string, string> = {
+  Codeforces: 'bg-blue-500/10 text-blue-500',
+  LeetCode: 'bg-amber-500/10 text-amber-500',
+  AtCoder: 'bg-emerald-500/10 text-emerald-500',
+  CodeChef: 'bg-violet-500/10 text-violet-500',
+};
+
+// Group by platform — only platforms with actual problems
+const platformMap = problems.reduce((acc, p) => {
+  const platform = p.data.platform;
+  if (!acc[platform]) acc[platform] = [];
+  acc[platform].push(p);
+  return acc;
+}, {} as Record<string, typeof problems>);
+
+// All tags with counts
+const tagMap = problems.reduce((acc, p) => {
+  p.data.tags.forEach(tag => {
+    acc[tag] = (acc[tag] || 0) + 1;
+  });
+  return acc;
+}, {} as Record<string, number>);
+
+const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
+---
+
+<Base
+  title="CP Journal — Shahed Ali"
+  description="My competitive programming journey — problems solved on Codeforces, LeetCode, AtCoder and more."
+>
+  <div class="max-w-3xl mx-auto px-6 py-16">
+
+    <!-- Header -->
+    <div class="mb-12 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
+      <h1 class="text-[28px] sm:text-[34px] font-medium tracking-tight text-ink mb-3">CP Journal</h1>
+      <p class="text-[14px] text-ink-muted leading-relaxed">
+        Every problem I've solved, with my approach, thinking, and code. {problems.length} problems and counting.
+      </p>
+    </div>
+
+    <!-- Platform cards -->
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Platforms</span>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-16 stagger">
+      {Object.entries(platformMap).map(([platform, probs]) => (
+        
+          href={`/cp/${platform.toLowerCase()}`}
+          class="reveal group flex items-center justify-between p-5 rounded-xl border border-border hover:border-ink-muted bg-surface hover:bg-surface-secondary transition-all duration-200"
+        >
+          <div class="flex items-center gap-3">
+            <span class={`w-9 h-9 rounded-lg flex items-center justify-center text-base font-mono ${platformColors[platform]}`}>
+              {platformIcons[platform]}
+            </span>
+            <div>
+              <div class="text-[14px] font-medium text-ink">{platform}</div>
+              <div class="text-[12px] text-ink-faint mt-0.5">{probs.length} problem{probs.length !== 1 ? 's' : ''} solved</div>
+            </div>
+          </div>
+          <svg class="w-3.5 h-3.5 text-ink-faint group-hover:text-ink group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      ))}
+    </div>
+
+    <!-- Tag cloud -->
+    <div class="mb-6">
+      <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Browse by tag</span>
+    </div>
+
+    <div class="reveal flex flex-wrap gap-2">
+      {sortedTags.map(([tag, count]) => (
+        
+          href={`/cp/tags/${tag}`}
+          class="inline-flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-border rounded-md text-ink-muted hover:text-ink hover:border-ink-muted transition-all"
+        >
+          #{tag}
+          <span class="text-[11px] text-ink-faint">{count}</span>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</Base>

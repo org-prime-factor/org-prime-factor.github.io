@@ -1,0 +1,90 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const problems = await getCollection('cp');
+  const platforms = [...new Set(problems.map(p => p.data.platform.toLowerCase()))];
+  return platforms.map(platform => ({ params: { platform } }));
+}
+
+const { platform } = Astro.params;
+const allProblems = await getCollection('cp');
+
+const problems = allProblems
+  .filter(p => p.data.platform.toLowerCase() === platform)
+  .sort((a, b) => Number(a.data.difficulty) - Number(b.data.difficulty));
+
+const platformName = problems[0]?.data.platform ?? platform;
+
+const verdictColor: Record<string, string> = {
+  AC: 'text-emerald-600 dark:text-emerald-400',
+  WA: 'text-red-500',
+  TLE: 'text-amber-500',
+  MLE: 'text-violet-500',
+};
+---
+
+<Base
+  title={`${platformName} — CP · Shahed Ali`}
+  description={`All ${platformName} problems I've solved — with approach, thinking, and code.`}
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+
+    <!-- Back -->
+    
+      href="/cp"
+      class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors mb-12 group"
+    >
+      <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      CP Journal
+    </a>
+
+    <!-- Header -->
+    <div class="mb-10 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
+      <h1 class="text-[28px] font-medium tracking-tight text-ink mb-2">{platformName}</h1>
+      <p class="text-[14px] text-ink-muted">{problems.length} problem{problems.length !== 1 ? 's' : ''} solved</p>
+    </div>
+
+    <!-- Problem list -->
+    <div class="divide-y divide-border">
+      {problems.map((problem, i) => {
+        const slug = problem.slug.split('/').pop();
+        return (
+          
+            href={`/cp/${platform}/${slug}`}
+            class="reveal group flex items-center justify-between gap-4 py-4 hover:bg-surface-secondary -mx-3 px-3 rounded-lg transition-colors"
+            style={`transition-delay: ${i * 40}ms`}
+          >
+            <div class="flex items-center gap-4 min-w-0">
+              <span class="text-[12px] font-mono text-ink-faint shrink-0 w-12">
+                {problem.data.difficulty}
+              </span>
+              <div class="min-w-0">
+                <div class="text-[14px] font-medium text-ink group-hover:text-accent transition-colors truncate">
+                  {problem.data.problemName}
+                </div>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                  {problem.data.tags.map(tag => (
+                    <span class="text-[10px] text-ink-faint">#{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span class={`text-[11px] font-medium ${verdictColor[problem.data.verdict]}`}>
+                {problem.data.verdict}
+              </span>
+              <svg class="w-3.5 h-3.5 text-ink-faint group-hover:text-ink group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+
+  </div>
+</Base>

@@ -1,0 +1,69 @@
+---
+problemName: "Young Physicist"
+platform: "Codeforces"
+difficulty: "800"
+contestId: "69"
+problemId: "A"
+problemLink: "https://codeforces.com/problemset/problem/69/A"
+submissionLink: "https://codeforces.com/contest/69/submission/xxxxxx"
+tags: [implementation, math, vectors]
+date: 2026-04-13
+verdict: "AC"
+---
+
+## Understanding the problem
+
+We're given `n` force vectors in 3D space, each with x, y, z components. We need to check if the body is in equilibrium — meaning the sum of all forces equals zero.
+
+A body is in equilibrium when the resultant force is **(0, 0, 0)**. So we just need to check if the sum of all x components = 0, sum of all y = 0, and sum of all z = 0.
+
+## My thinking
+
+This was my first instinct and it turned out to be exactly right:
+
+- Sum all x values → should be 0
+- Sum all y values → should be 0  
+- Sum all z values → should be 0
+
+If all three sums are 0 → print `YES`, else `NO`.
+
+No tricks, no edge cases. Just careful reading.
+
+## Code
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int n;
+    int vectorA = 0;
+    int vectorB = 0;
+    int vectorC = 0;
+
+    cin >> n;
+
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < 3; j++){
+            int vector;
+            cin >> vector;
+            if(j == 0) vectorA += vector;
+            else if(j == 1) vectorB += vector;
+            else vectorC += vector;
+        }
+    }
+
+    if(vectorA == 0 && vectorB == 0 && vectorC == 0){
+        cout << "YES" << endl;
+        return 0;
+    }
+
+    cout << "NO" << endl;
+}
+```
+
+## What I learned
+
+- Reading 3D vectors row by row using a nested loop with j tracking the component index
+- `break` only exits the innermost loop — caught this when debugging the next problem
+- For equilibrium problems, always think resultant vector = zero vector

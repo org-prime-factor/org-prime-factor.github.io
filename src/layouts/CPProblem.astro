@@ -1,0 +1,128 @@
+---
+import Base from './Base.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  problem: CollectionEntry<'cp'>;
+}
+
+const { problem } = Astro.props;
+const {
+  problemName, platform, difficulty, problemLink,
+  submissionLink, tags, date, verdict, contestId, problemId
+} = problem.data;
+
+const formattedDate = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric', month: 'long', year: 'numeric',
+}).format(date);
+
+const platformSlug = platform.toLowerCase();
+
+const verdictColor = {
+  AC: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  WA: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  TLE: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  MLE: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+}[verdict];
+---
+
+<Base title={`${problemName} — CP · Shahed Ali`} description={`My approach and solution for ${problemName} on ${platform}.`}>
+  <div id="progress-bar" style="width: 0%"></div>
+
+  <article class="max-w-2xl mx-auto px-6 py-16">
+    <!-- Back -->
+    
+      href={`/cp/${platformSlug}`}
+      class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors mb-10 group"
+    >
+      <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      {platform}
+    </a>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class={`text-[11px] font-medium px-2.5 py-1 rounded-md uppercase tracking-wider ${verdictColor}`}>
+          {verdict}
+        </span>
+        <span class="text-[11px] font-medium px-2.5 py-1 rounded-md uppercase tracking-wider bg-surface-secondary text-ink-muted border border-border">
+          {platform} {contestId && problemId ? `· ${contestId}${problemId}` : ''}
+        </span>
+        <span class="text-[11px] font-medium px-2.5 py-1 rounded-md uppercase tracking-wider bg-surface-secondary text-ink-muted border border-border">
+          Rating {difficulty}
+        </span>
+      </div>
+
+      <h1 class="text-[28px] sm:text-[32px] font-medium leading-tight tracking-tight text-ink mb-4">
+        {problemName}
+      </h1>
+
+      <div class="flex items-center gap-3 text-[13px] text-ink-faint mb-6">
+        <time datetime={date.toISOString()}>{formattedDate}</time>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-3 pb-8 border-b border-border">
+        
+          href={problemLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 text-[12px] px-4 py-2 bg-ink text-surface rounded-lg hover:bg-ink/90 transition-colors font-medium"
+        >
+          View problem ↗
+        </a>
+        {submissionLink && (
+          
+            href={submissionLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-[12px] px-4 py-2 border border-border rounded-lg text-ink-muted hover:text-ink hover:border-ink-muted transition-all"
+          >
+            My submission ↗
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="flex flex-wrap gap-2 mb-8">
+      {tags.map(tag => (
+        
+          href={`/cp/tags/${tag}`}
+          class="text-[11px] px-2.5 py-1 bg-surface-secondary border border-border rounded-md text-ink-muted hover:text-ink hover:border-ink-muted transition-all"
+        >
+          #{tag}
+        </a>
+      ))}
+    </div>
+
+    <!-- Content -->
+    <div class="prose">
+      <slot />
+    </div>
+
+    <!-- Bottom nav -->
+    <div class="mt-16 pt-8 border-t border-border">
+      
+        href={`/cp/${platformSlug}`}
+        class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors group"
+      >
+        <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to {platform}
+      </a>
+    </div>
+  </article>
+</Base>
+
+<script>
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    if (bar) bar.style.width = `${pct}%`;
+  });
+</script>

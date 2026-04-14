@@ -1,0 +1,61 @@
+---
+problemName: "Beautiful Matrix"
+platform: "Codeforces"
+difficulty: "800"
+contestId: "263"
+problemId: "A"
+problemLink: "https://codeforces.com/problemset/problem/263/A"
+submissionLink: "https://codeforces.com/contest/263/submission/xxxxxx"
+tags: [implementation, math]
+date: 2026-04-13
+verdict: "AC"
+---
+
+## Understanding the problem
+
+We have a 5×5 matrix with twenty-four 0s and a single 1. We can swap neighboring rows or columns. Goal: move the 1 to the center cell (row 3, col 3). Find the minimum number of moves.
+
+## My thinking
+
+The key insight — each row swap moves the 1 one step closer vertically, each column swap moves it one step closer horizontally. So the minimum moves is just the **Manhattan distance** from the 1's position to the center.
+
+Using 0-based indexing, the center is at **(2, 2)**.
+
+So: minSteps = abs(row - 2) + abs(col - 2)
+
+I found the position of 1 by iterating through the matrix and breaking as soon as I found it.
+
+**One bug I hit:** my first version used `break` thinking it would exit both loops. It only exited the inner loop — so `i` kept incrementing and I got wrong output. Fixed it by using `return 0` directly after computing the answer.
+
+## Code
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main(){
+    int i = 0;
+    int j = 0;
+
+    for(; i < 5; i++){
+        for(; j < 5; j++){
+            int val;
+            cin >> val;
+            if(val == 1){
+                int minStep = abs(i - 2) + abs(j - 2);
+                cout << minStep << endl;
+                return 0;
+            }
+        }
+        j = 0;
+    }
+
+    return 0;
+}
+```
+
+## What I learned
+
+- `break` only exits the **innermost** loop — if you need to exit multiple loops, use `return` or a flag
+- Manhattan distance is the go-to formula for grid movement problems where you can only move horizontally/vertically
+- Always reset inner loop variables (`j = 0`) when using non-standard for loop initialization

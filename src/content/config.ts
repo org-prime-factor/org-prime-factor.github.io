@@ -12,4 +12,20 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+const cp = defineCollection({
+  type: 'content',
+  schema: z.object({
+    problemName: z.string(),
+    platform: z.enum(['Codeforces', 'LeetCode', 'AtCoder', 'CodeChef']),
+    difficulty: z.string(),
+    problemLink: z.string().url(),
+    submissionLink: z.string().url().optional(),
+    tags: z.array(z.string()).default([]),
+    date: z.coerce.date(),
+    verdict: z.enum(['AC', 'WA', 'TLE', 'MLE']).default('AC'),
+    contestId: z.string().optional(),
+    problemId: z.string().optional(),
+  }),
+});
+
+export const collections = { blog, cp };

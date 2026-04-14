@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import CPProblem from '../../../layouts/CPProblem.astro';
+
+export async function getStaticPaths() {
+  const problems = await getCollection('cp');
+  return problems.map(problem => {
+    const parts = problem.slug.split('/');
+    const platform = parts[0];
+    const slug = parts[1];
+    return {
+      params: { platform, slug },
+      props: { problem },
+    };
+  });
+}
+
+const { problem } = Astro.props;
+const { Content } = await problem.render();
+---
+
+<CPProblem problem={problem}>
+  <Content />
+</CPProblem>
