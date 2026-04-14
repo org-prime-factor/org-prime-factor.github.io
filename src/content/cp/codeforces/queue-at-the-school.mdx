@@ -15,7 +15,7 @@ This is not a hard problem. The code is maybe 15 lines. But it took me longer th
 
 ## The problem
 
-There's a queue of boys (B) and girls (G). Boys feel awkward standing in front of girls, so they let them pass. Every second, wherever a B is directly followed by a G, they swap. Given the initial arrangement and a time t, find the final arrangement after t seconds.
+There's a queue of boys (B) and girls (G). Boys feel awkward standing in front of girls, so they let them pass. Every second, wherever a B is directly followed by a G, they swap. Given the initial arrangement and a time `t`, find the final arrangement after `t` seconds.
 
 Simple enough on the surface.
 
@@ -23,55 +23,60 @@ Simple enough on the surface.
 
 My first instinct was to read this line:
 
-> "if at time x a boy stands on the i-th position and a girl stands on the (i+1)-th position, then at time x+1 the i-th position will have a girl and the (i+1)-th position will have a boy"
+> "if at time x a boy stands on the i-th position and a girl stands on the (i + 1)-th position, then at time x + 1 the i-th position will have a girl and the (i + 1)-th position will have a boy"
 
 And immediately start thinking about how to scan through the string and swap things.
 
 The problem was I conflated two things:
 
-- `i` — position in the queue
-- `t` — seconds elapsed
+* `i` — position in the queue
+* `t` — seconds elapsed
 
 I was trying to use `t` as a loop condition inside the traversal. Something like "iterate until we reach index t". That's completely wrong, but it made sense in my head because I was reading the problem like a step-by-step algorithm rather than a state description.
 
 ## The thing that actually unlocked it
 
-The phrase **"at time x → at time x+1"** is doing something specific. It's not describing a procedure. It's describing a state transition.
+The phrase **"at time x → at time x + 1"** is doing something specific. It's not describing a procedure. It's describing a state transition.
 
-It's saying: here is a complete snapshot of the queue at time x. Here is the rule that produces the snapshot at time x+1.
+It's saying: here is a complete snapshot of the queue at time x. Here is the rule that produces the snapshot at time x + 1.
 
 That implies you must:
-- Look at the full current state
-- Produce a new full state based on it
-- Repeat t times
 
-Not scan and mutate as you go. Not use t as a position. Two completely separate loops — one for time, one for position.
+* Look at the full current state
+* Produce a new full state based on it
+* Repeat `t` times
 
-The problem never says "simultaneously". It never says "full snapshot". But "at time x → at time x+1" forces that interpretation once you see it.
+Not scan and mutate as you go. Not use `t` as a position. Two completely separate loops — one for time, one for position.
+
+The problem never explicitly says "simultaneously". It never says "full snapshot". But "at time x → at time x + 1" forces that interpretation once you see it.
 
 ## Dry run that made it click
 
 Input:
+
+```
 5 2
-
 BGGBG
+```
 
-Second 0 (initial): `B G G B G`
+Second 0 (initial): `BGGBG`
 
 Second 1 — scan for BG pairs using the original state:
 
-`B G G B G`
-- i=0: B,G → swap → skip i=1
-- i=2: G,B → not BG, continue
-- i=3: B,G → swap → skip i=4
+`BGGBG`
 
-After second 1: `G B G G B`
+* i = 0: B,G → swap → skip i = 1
+* i = 2: G,B → not BG, continue
+* i = 3: B,G → swap → skip i = 4
 
-After second 2 on `G B G G B`:
-- i=1: B,G → swap → skip i=2
-- i=3: G,B → not BG
+After second 1: `GBGGB`
 
-Result: `G G B G B`
+After second 2 on `GBGGB`:
+
+* i = 1: B,G → swap → skip i = 2
+* i = 3: G,B → not BG
+
+Result: `GGBGB`
 
 Final answer: `GGBGB` ✅
 
@@ -106,9 +111,9 @@ int main(){
 }
 ```
 
-The `i++` inside the if block is important — after a swap, you skip the next index because it's already been processed as part of the pair. Without it you'd be looking at the just-swapped G and potentially swapping it again in the same second.
+The `i++` inside the if block is important — after a swap, you skip the next index because it's already been processed as part of the pair. Without it, you'd be looking at the just-swapped `G` and potentially swapping it again in the same second.
 
-The outer `while(t--)` is the time loop. The inner `for` is the position scan. They're completely separate — t has nothing to do with position.
+The outer `while(t--)` is the time loop. The inner `for` is the position scan. They're completely separate — `t` has nothing to do with position.
 
 ## What I actually learned
 
@@ -116,6 +121,6 @@ The code is not the lesson here.
 
 The lesson is: **competitive programming problems describe systems, not algorithms**. When you read a problem, your job isn't to immediately translate it to code. Your job is to understand the system being described — then the code follows naturally.
 
-"at time x → at time x+1" is state transition language. Once you recognize that pattern, a whole class of simulation problems becomes easier to read.
+"at time x → at time x + 1" is state transition language. Once you recognize that pattern, a whole class of simulation problems becomes easier to read.
 
 This took me longer than it should have. But I'll recognize it instantly next time.

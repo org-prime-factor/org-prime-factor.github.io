@@ -17,9 +17,9 @@ This one looked trivial. Three symbols, three digits, decode the string. I had t
 
 Ternary numbers use digits 0, 1, and 2. In Borze encoding:
 
-- `.` → 0
-- `-.` → 1
-- `--` → 2
+* `.` → 0
+* `-.` → 1
+* `--` → 2
 
 Given a valid Borze-encoded string, decode it back to the original ternary number.
 
@@ -27,11 +27,11 @@ Given a valid Borze-encoded string, decode it back to the original ternary numbe
 
 I thought: keep two variables — `dot` and `dash`. Accumulate dashes as I go, and when I hit a dot, decide what digit I just decoded based on how many dashes I've seen.
 
-When `dash == 0` and I see `.` → digit is `0`  
-When `dash == 1` and I see `.` → digit is `1`, reset dash  
-When `dash == 2` → digit is `2`, reset dash  
+* When `dash == 0` and I see `.` → digit is `0`
+* When `dash == 1` and I see `.` → digit is `1`, reset dash
+* When `dash == 2` → digit is `2`, reset dash
 
-My logic also said: when `dash == 2` and I then hit a `.`, that means I got `2` followed by `0`.
+My logic also said: when `dash == 2` and I then hit `.`, that means I got `2` followed by `0`.
 
 That last part is where it starts to fall apart.
 
@@ -39,17 +39,20 @@ That last part is where it starts to fall apart.
 
 The encoding is chunk-based, not counter-based.
 
-`--` is already a complete chunk. It means 2. The next `.` is a completely new chunk that means 0. There's no "dash == 2 then dot = 20" — those are two separate digits decoded from two separate chunks.
+`--` is already a complete chunk. It means `2`. The next `.` is a completely new chunk that means `0`.
 
-My counter approach delayed decisions. But the encoding forces immediate decisions — as soon as you see `--`, you're done, that's a 2. You don't wait for a dot.
+There's no `dash == 2 then dot = 20` — those are two separate digits decoded from two separate chunks.
+
+My counter approach delayed decisions. But the encoding forces immediate decisions — as soon as you see `--`, you're done, that's a `2`. You don't wait for a dot.
 
 The clean mental model is:
 
-- Read current character
-- If `.` → immediately emit 0
-- If `-` → immediately look at the next character
-  - Next is `.` → emit 1, advance past both
-  - Next is `-` → emit 2, advance past both
+* Read current character
+* If `.` → immediately emit `0`
+* If `-` → immediately look at the next character
+
+  * Next is `.` → emit `1`, advance past both
+  * Next is `-` → emit `2`, advance past both
 
 No counters. No accumulation. Each chunk is self-contained.
 
@@ -90,17 +93,17 @@ int main(){
 }
 ```
 
-The parsing logic survived mostly intact. What changed was the output — I switched from `int ans` to `string borzeCode`.
+The parsing logic survived mostly intact. What changed was the output — I switched from an integer to a string.
 
 ## The bug I almost shipped
 
-My original code used `int ans` and built the result like:
+My original code used an integer and built the result like:
 
 ```cpp
 ans = (ans * 10) + num;
 ```
 
-This looks reasonable but silently destroys leading zeroes. If the decoded sequence is `0010`, an int stores it as `10`. The problem explicitly says the output can have leading zeroes.
+This looks reasonable but silently destroys leading zeroes. If the decoded sequence is `0010`, an integer stores it as `10`. The problem explicitly says the output can have leading zeroes.
 
 Switching to a string and appending characters fixes this completely — you're not doing arithmetic, you're decoding a sequence. Treating it as a number was the wrong abstraction from the start.
 
@@ -108,8 +111,10 @@ Switching to a string and appending characters fixes this completely — you're 
 
 Two things stuck with me here.
 
-First: **encoding schemes are chunk-based, not character-based**. When you see `-`, you can't make a decision yet — you need the next character. The decision boundary is the chunk, not the character. Trying to accumulate state across characters fights against that structure.
+**Encoding schemes are chunk-based, not character-based.**
+When you see `-`, you can't decide yet — you need the next character. The decision boundary is the chunk, not the character.
 
-Second: **the output type matters**. Reaching for `int` is a reflex. But when a problem says "output may have leading zeroes" — that's a signal. The answer is a digit sequence, not a number. A string models that correctly. An int does not.
+**The output type matters.**
+Reaching for an integer is a reflex. But when a problem allows leading zeroes, that's a signal — the result is a sequence, not a number. A string models that correctly.
 
 The decoding logic was fine all along. I just had the wrong container for the result.
