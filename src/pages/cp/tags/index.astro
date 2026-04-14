@@ -32,7 +32,7 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1].length - a[1].leng
 
     <div class="flex flex-col gap-3">
       {sortedTags.map(([tag, probs], i) => (
-        
+        <a
           href={`/cp/tags/${tag}`}
           class="reveal group flex items-center justify-between p-4 rounded-xl border border-border hover:border-ink-muted bg-surface hover:bg-surface-secondary transition-all"
           style={`transition-delay: ${i * 40}ms`}

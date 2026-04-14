@@ -54,7 +54,7 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-16 stagger">
       {Object.entries(platformMap).map(([platform, probs]) => (
-        
+        <a
           href={'/cp/' + platform.toLowerCase()}
           class="reveal group flex items-center justify-between p-5 rounded-xl border border-border hover:border-ink-muted bg-surface hover:bg-surface-secondary transition-all duration-200"
         >
@@ -80,7 +80,7 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
 
     <div class="reveal flex flex-wrap gap-2">
       {sortedTags.map(([tag, count]) => (
-        
+        <a
           href={'/cp/tags/' + tag}
           class="inline-flex items-center gap-1.5 text-[12px] px-3 py-1.5 border border-border rounded-md text-ink-muted hover:text-ink hover:border-ink-muted transition-all"
         >

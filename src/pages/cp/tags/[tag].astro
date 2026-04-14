@@ -31,8 +31,8 @@ const verdictColor: Record<string, string> = {
 ---
 
 <Base
-  title={`#${tag} — CP · Shahed Ali`}
-  description={`All CP problems tagged with ${tag}.`}
+  title={'#' + tag + ' — CP · Shahed Ali'}
+  description={'All CP problems tagged with ' + tag + '.'}
 >
   <div class="max-w-2xl mx-auto px-6 py-16">
 
@@ -57,10 +57,10 @@ const verdictColor: Record<string, string> = {
             const platformSlug = parts[0];
             const slug = parts[1];
             return (
-              
-                href={`/cp/${platformSlug}/${slug}`}
+              <a
+                href={'/cp/' + platformSlug + '/' + slug}
                 class="reveal group flex items-center justify-between gap-4 py-4 hover:bg-surface-secondary -mx-3 px-3 rounded-lg transition-colors"
-                style={`transition-delay: ${i * 40}ms`}
+                style={'transition-delay: ' + (i * 40) + 'ms'}
               >
                 <div class="flex items-center gap-4 min-w-0">
                   <span class="text-[12px] font-mono text-ink-faint shrink-0 w-12">
@@ -70,7 +70,7 @@ const verdictColor: Record<string, string> = {
                     {problem.data.problemName}
                   </div>
                 </div>
-                <span class={`text-[11px] font-medium shrink-0 ${verdictColor[problem.data.verdict]}`}>
+                <span class={verdictColor[problem.data.verdict] + ' text-[11px] font-medium shrink-0'}>
                   {problem.data.verdict}
                 </span>
               </a>
