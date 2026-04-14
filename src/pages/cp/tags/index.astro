@@ -27,21 +27,27 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1].length - a[1].leng
 
     <div class="mb-10 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
       <h1 class="text-[28px] font-medium tracking-tight text-ink mb-2">Tags</h1>
-      <p class="text-[14px] text-ink-muted">{sortedTags.length} topic{sortedTags.length !== 1 ? 's' : ''}</p>
+      <p class="text-[14px] text-ink-muted">
+        {sortedTags.length} topic{sortedTags.length !== 1 ? 's' : ''}
+      </p>
     </div>
 
     <div class="flex flex-col gap-3">
       {sortedTags.map(([tag, probs], i) => (
         <a
-          href={`/cp/tags/${tag}`}
+          href={'/cp/tags/' + tag}
           class="reveal group flex items-center justify-between p-4 rounded-xl border border-border hover:border-ink-muted bg-surface hover:bg-surface-secondary transition-all"
-          style={`transition-delay: ${i * 40}ms`}
+          style={'transition-delay: ' + (i * 40) + 'ms'}
         >
           <div class="flex items-center gap-3">
-            <span class="text-[13px] font-medium text-ink">#{tag}</span>
+            <span class="text-[13px] font-medium text-ink">
+              {'#' + tag}
+            </span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-[12px] text-ink-faint">{probs.length} problem{probs.length !== 1 ? 's' : ''}</span>
+            <span class="text-[12px] text-ink-faint">
+              {probs.length} problem{probs.length !== 1 ? 's' : ''}
+            </span>
             <svg class="w-3.5 h-3.5 text-ink-faint group-hover:text-ink group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>

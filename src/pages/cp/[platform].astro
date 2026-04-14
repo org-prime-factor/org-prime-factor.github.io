@@ -27,11 +27,11 @@ const verdictColor: Record<string, string> = {
 
 <Base
   title={platformName + ' — CP · Shahed Ali'}
-  description={'All ' + platformName + ' problems I\'ve solved — with approach, thinking, and code.'}
+  description={'All ' + platformName + " problems I've solved — with approach, thinking, and code."}
 >
   <div class="max-w-2xl mx-auto px-6 py-16">
 
-    
+    <a
       href="/cp"
       class="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink transition-colors mb-12 group"
     >
@@ -43,7 +43,9 @@ const verdictColor: Record<string, string> = {
 
     <div class="mb-10 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
       <h1 class="text-[28px] font-medium tracking-tight text-ink mb-2">{platformName}</h1>
-      <p class="text-[14px] text-ink-muted">{problems.length} problem{problems.length !== 1 ? 's' : ''} solved</p>
+      <p class="text-[14px] text-ink-muted">
+        {problems.length} problem{problems.length !== 1 ? 's' : ''} solved
+      </p>
     </div>
 
     <div class="divide-y divide-border">
@@ -65,13 +67,16 @@ const verdictColor: Record<string, string> = {
                 </div>
                 <div class="flex flex-wrap gap-1.5 mt-1">
                   {problem.data.tags.map(tag => (
-                    <span class="text-[10px] text-ink-faint">{'#' + tag}</span>
+                    <span class="text-[10px] text-ink-faint">
+                      {'#' + tag}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
+
             <div class="flex items-center gap-3 shrink-0">
-              <span class={verdictColor[problem.data.verdict] + ' text-[11px] font-medium'}>
+              <span class={(verdictColor[problem.data.verdict] ?? 'text-gray-500') + ' text-[11px] font-medium'}>
                 {problem.data.verdict}
               </span>
               <svg class="w-3.5 h-3.5 text-ink-faint group-hover:text-ink group-hover:translate-x-0.5 transition-all" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
