@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import ConfettiCelebration from '../components/ConfettiCelebration.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -118,7 +119,10 @@ const contestLabel = contestId && problemId ? ` · ${contestId}${problemId}` : '
         Back to {platform}
       </a>
     </div>
+    <!-- Confetti sentinel -->
+    <div id="post-end-sentinel" style="height: 1px;"></div>
   </article>
+  <ConfettiCelebration />
 </Base>
 
 <script>
