@@ -1,25 +1,21 @@
 ---
 import Base from './Base.astro';
+import ConfettiCelebration from '../components/ConfettiCelebration.astro';
 import type { CollectionEntry } from 'astro:content';
-
 interface Props {
   post: CollectionEntry<'blog'>;
 }
-
 const { post } = Astro.props;
 const { title, description, date, tags, readTime } = post.data;
-
 const formattedDate = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
 }).format(date);
 ---
-
 <Base title={`${title} — Shahed Ali`} description={description}>
   <!-- Reading progress bar -->
   <div id="progress-bar" style="width: 0%"></div>
-
   <article class="max-w-2xl mx-auto px-6 py-16">
     <!-- Back link -->
     <a
@@ -31,7 +27,6 @@ const formattedDate = new Intl.DateTimeFormat('en-GB', {
       </svg>
       All posts
     </a>
-
     <!-- Tags -->
     <div class="flex flex-wrap gap-2 mb-5">
       {tags.map(tag => (
@@ -40,12 +35,10 @@ const formattedDate = new Intl.DateTimeFormat('en-GB', {
         </span>
       ))}
     </div>
-
     <!-- Title -->
     <h1 class="text-[28px] sm:text-[32px] font-medium leading-[1.2] tracking-tight text-ink mb-4">
       {title}
     </h1>
-
     <!-- Meta -->
     <div class="flex items-center gap-3 text-[13px] text-ink-faint mb-12 pb-8 border-b border-border">
       <time datetime={date.toISOString()}>{formattedDate}</time>
@@ -56,12 +49,10 @@ const formattedDate = new Intl.DateTimeFormat('en-GB', {
         </>
       )}
     </div>
-
     <!-- Content -->
     <div class="prose">
       <slot />
     </div>
-
     <!-- Bottom nav -->
     <div class="mt-16 pt-8 border-t border-border">
       <a
@@ -74,9 +65,11 @@ const formattedDate = new Intl.DateTimeFormat('en-GB', {
         Back to all posts
       </a>
     </div>
+    <!-- Confetti sentinel -->
+    <div id="post-end-sentinel" style="height: 1px;"></div>
   </article>
+  <ConfettiCelebration />
 </Base>
-
 <script>
   // Reading progress bar
   const bar = document.getElementById('progress-bar');
