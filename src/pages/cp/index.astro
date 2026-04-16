@@ -33,6 +33,55 @@ const tagMap = problems.reduce((acc, p) => {
 
 const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
 
+// --- Build-time LeetCode stats (two accounts) ---
+type LeetCodeStats = {
+  username: string;
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  ranking: number;
+  contestRating: number | null;
+  attendedContestsCount: number | null;
+} | null;
+
+async function fetchLeetCode(username: string): Promise<LeetCodeStats> {
+  try {
+    const res = await fetch(`https://alfa-leetcode-api.onrender.com/${username}`);
+    if (!res.ok) return null;
+    const d = await res.json();
+
+    let contestRating = null;
+    let attendedContestsCount = null;
+    try {
+      const cr = await fetch(`https://alfa-leetcode-api.onrender.com/${username}/contest`);
+      if (cr.ok) {
+        const cd = await cr.json();
+        contestRating = cd.contestRating ? Math.round(cd.contestRating) : null;
+        attendedContestsCount = cd.attendedContestsCount ?? null;
+      }
+    } catch {}
+
+    return {
+      username,
+      totalSolved: d.totalSolved ?? 0,
+      easySolved: d.easySolved ?? 0,
+      mediumSolved: d.mediumSolved ?? 0,
+      hardSolved: d.hardSolved ?? 0,
+      ranking: d.ranking ?? 0,
+      contestRating,
+      attendedContestsCount,
+    };
+  } catch {
+    return null;
+  }
+}
+
+const [lcMain, lcAlt] = await Promise.all([
+  fetchLeetCode('__shahedali__'),
+  fetchLeetCode('prime_factor'),
+]);
+
 // --- Build-time CF topic distribution ---
 const BANDS = [
   { label: '800 – 1200',  min: 800,  max: 1200 },
@@ -62,26 +111,17 @@ try {
       const filtered = (result.problems as any[]).filter(
         p => p.rating >= band.min && p.rating <= band.max && p.tags?.length
       );
-
       const tagCount: Record<string, number> = {};
       filtered.forEach(p => {
-        p.tags.forEach((t: string) => {
-          tagCount[t] = (tagCount[t] || 0) + 1;
-        });
+        p.tags.forEach((t: string) => { tagCount[t] = (tagCount[t] || 0) + 1; });
       });
-
-      const sorted = Object.entries(tagCount)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, TOP_N);
-
+      const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, TOP_N);
       const maxCount = sorted[0]?.[1] || 1;
-
       return {
         label: band.label,
         count: filtered.length,
         tags: sorted.map(([name, count]) => ({
-          name,
-          count,
+          name, count,
           weight: Math.round((0.45 + 0.55 * (count / maxCount)) * 100) / 100,
         })),
       };
@@ -101,7 +141,6 @@ const bandAccentClasses = [
   'text-violet-600 dark:text-violet-400',
   'text-rose-600 dark:text-rose-400',
 ];
-
 const bandTagClasses = [
   'bg-emerald-500/8 text-emerald-700 border-emerald-500/20 dark:text-emerald-300',
   'bg-blue-500/8 text-blue-700 border-blue-500/20 dark:text-blue-300',
@@ -124,6 +163,113 @@ const bandTagClasses = [
         Every problem I've solved, with my approach, thinking, and code. {problems.length} problems and counting.
       </p>
     </div>
+
+    {/* LeetCode segmented widget */}
+    {(lcMain || lcAlt) && (
+      <div class="reveal mb-16">
+        <div class="mb-6">
+          <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">LeetCode</span>
+        </div>
+
+        <div
+          class="inline-flex p-1 rounded-lg bg-surface border border-border mb-6"
+          role="tablist"
+        >
+          <button
+            role="tab"
+            data-tab="main"
+            aria-selected="true"
+            class="lc-tab lc-tab-active px-4 py-1.5 rounded-md text-[12px] font-medium transition-all"
+          >
+            __shahedali__
+          </button>
+          <button
+            role="tab"
+            data-tab="alt"
+            aria-selected="false"
+            class="lc-tab px-4 py-1.5 rounded-md text-[12px] font-medium transition-all text-ink-muted"
+          >
+            prime_factor
+          </button>
+        </div>
+
+        {lcMain && (
+          <div id="lc-panel-main" class="lc-panel">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div class="p-4 rounded-xl border border-border bg-surface">
+                <div class="text-[11px] text-ink-faint mb-1">Total solved</div>
+                <div class="text-[22px] font-medium text-ink">{lcMain.totalSolved}</div>
+              </div>
+              <div class="p-4 rounded-xl border border-border bg-surface">
+                <div class="text-[11px] text-ink-faint mb-1">Ranking</div>
+                <div class="text-[22px] font-medium text-ink">{lcMain.ranking.toLocaleString()}</div>
+              </div>
+              {lcMain.contestRating && (
+                <div class="p-4 rounded-xl border border-border bg-surface">
+                  <div class="text-[11px] text-ink-faint mb-1">Contest rating</div>
+                  <div class="text-[22px] font-medium text-ink">{lcMain.contestRating}</div>
+                </div>
+              )}
+              {lcMain.attendedContestsCount && (
+                <div class="p-4 rounded-xl border border-border bg-surface">
+                  <div class="text-[11px] text-ink-faint mb-1">Contests</div>
+                  <div class="text-[22px] font-medium text-ink">{lcMain.attendedContestsCount}</div>
+                </div>
+              )}
+            </div>
+            <div class="flex gap-2">
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-emerald-500/8 text-emerald-700 border-emerald-500/20 dark:text-emerald-300">
+                Easy <span class="opacity-60">{lcMain.easySolved}</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-amber-500/8 text-amber-700 border-amber-500/20 dark:text-amber-300">
+                Medium <span class="opacity-60">{lcMain.mediumSolved}</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-rose-500/8 text-rose-700 border-rose-500/20 dark:text-rose-300">
+                Hard <span class="opacity-60">{lcMain.hardSolved}</span>
+              </span>
+            </div>
+          </div>
+        )}
+
+        {lcAlt && (
+          <div id="lc-panel-alt" class="lc-panel hidden">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div class="p-4 rounded-xl border border-border bg-surface">
+                <div class="text-[11px] text-ink-faint mb-1">Total solved</div>
+                <div class="text-[22px] font-medium text-ink">{lcAlt.totalSolved}</div>
+              </div>
+              <div class="p-4 rounded-xl border border-border bg-surface">
+                <div class="text-[11px] text-ink-faint mb-1">Ranking</div>
+                <div class="text-[22px] font-medium text-ink">{lcAlt.ranking.toLocaleString()}</div>
+              </div>
+              {lcAlt.contestRating && (
+                <div class="p-4 rounded-xl border border-border bg-surface">
+                  <div class="text-[11px] text-ink-faint mb-1">Contest rating</div>
+                  <div class="text-[22px] font-medium text-ink">{lcAlt.contestRating}</div>
+                </div>
+              )}
+              {lcAlt.attendedContestsCount && (
+                <div class="p-4 rounded-xl border border-border bg-surface">
+                  <div class="text-[11px] text-ink-faint mb-1">Contests</div>
+                  <div class="text-[22px] font-medium text-ink">{lcAlt.attendedContestsCount}</div>
+                </div>
+              )}
+            </div>
+            <div class="flex gap-2">
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-emerald-500/8 text-emerald-700 border-emerald-500/20 dark:text-emerald-300">
+                Easy <span class="opacity-60">{lcAlt.easySolved}</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-amber-500/8 text-amber-700 border-amber-500/20 dark:text-amber-300">
+                Medium <span class="opacity-60">{lcAlt.mediumSolved}</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border bg-rose-500/8 text-rose-700 border-rose-500/20 dark:text-rose-300">
+                Hard <span class="opacity-60">{lcAlt.hardSolved}</span>
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    )}
 
     <div class="mb-6">
       <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Platforms</span>
@@ -174,9 +320,7 @@ const bandTagClasses = [
           {cfBands.map((band, idx) => (
             <div>
               <div class="flex items-baseline gap-2 mb-3">
-                <span class={`text-[13px] font-medium ${bandAccentClasses[idx]}`}>
-                  {band.label}
-                </span>
+                <span class={`text-[13px] font-medium ${bandAccentClasses[idx]}`}>{band.label}</span>
                 <span class="text-[11px] text-ink-faint">{band.count} problems</span>
               </div>
               <div class="flex flex-wrap gap-2">
@@ -198,3 +342,34 @@ const bandTagClasses = [
 
   </div>
 </Base>
+
+<script>
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.lc-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.lc-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(t => {
+        const isActive = t.dataset.tab === target;
+        t.setAttribute('aria-selected', String(isActive));
+        t.classList.toggle('lc-tab-active', isActive);
+        t.classList.toggle('text-ink-muted', !isActive);
+      });
+
+      panels.forEach(p => {
+        p.classList.toggle('hidden', p.id !== `lc-panel-${target}`);
+      });
+    });
+  });
+</script>
+
+<style>
+  .lc-tab-active {
+    background: var(--color-surface-secondary, rgba(255,255,255,0.08));
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+  }
+</style>
