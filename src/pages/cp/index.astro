@@ -10,7 +10,6 @@ const platformIcons: Record<string, string> = {
   AtCoder: '◎',
   CodeChef: '◇',
 };
-
 const platformColors: Record<string, string> = {
   Codeforces: 'bg-blue-500/10 text-blue-500',
   LeetCode: 'bg-amber-500/10 text-amber-500',
@@ -33,6 +32,84 @@ const tagMap = problems.reduce((acc, p) => {
 }, {} as Record<string, number>);
 
 const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
+
+// --- Build-time CF topic distribution ---
+const BANDS = [
+  { label: '800 – 1200',  min: 800,  max: 1200 },
+  { label: '1300 – 1600', min: 1300, max: 1600 },
+  { label: '1700 – 1900', min: 1700, max: 1900 },
+  { label: '2000 – 2200', min: 2000, max: 2200 },
+  { label: '2300 – 2600', min: 2300, max: 2600 },
+  { label: '2700+',       min: 2700, max: Infinity },
+];
+const TOP_N = 12;
+
+type BandData = {
+  label: string;
+  count: number;
+  tags: { name: string; count: number; weight: number }[];
+};
+
+let cfBands: BandData[] = [];
+let cfFetchError = false;
+
+try {
+  const res = await fetch('https://codeforces.com/api/problemset.problems');
+  const { status, result } = await res.json();
+
+  if (status === 'OK') {
+    cfBands = BANDS.map(band => {
+      const filtered = (result.problems as any[]).filter(
+        p => p.rating >= band.min && p.rating <= band.max && p.tags?.length
+      );
+
+      const tagCount: Record<string, number> = {};
+      filtered.forEach(p => {
+        p.tags.forEach((t: string) => {
+          tagCount[t] = (tagCount[t] || 0) + 1;
+        });
+      });
+
+      const sorted = Object.entries(tagCount)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, TOP_N);
+
+      const maxCount = sorted[0]?.[1] || 1;
+
+      return {
+        label: band.label,
+        count: filtered.length,
+        tags: sorted.map(([name, count]) => ({
+          name,
+          count,
+          weight: Math.round((0.45 + 0.55 * (count / maxCount)) * 100) / 100,
+        })),
+      };
+    });
+  } else {
+    cfFetchError = true;
+  }
+} catch {
+  cfFetchError = true;
+}
+
+const bandAccentClasses = [
+  'text-emerald-600 dark:text-emerald-400',
+  'text-blue-600 dark:text-blue-400',
+  'text-amber-600 dark:text-amber-400',
+  'text-orange-600 dark:text-orange-400',
+  'text-violet-600 dark:text-violet-400',
+  'text-rose-600 dark:text-rose-400',
+];
+
+const bandTagClasses = [
+  'bg-emerald-500/8 text-emerald-700 border-emerald-500/20 dark:text-emerald-300',
+  'bg-blue-500/8 text-blue-700 border-blue-500/20 dark:text-blue-300',
+  'bg-amber-500/8 text-amber-700 border-amber-500/20 dark:text-amber-300',
+  'bg-orange-500/8 text-orange-700 border-orange-500/20 dark:text-orange-300',
+  'bg-violet-500/8 text-violet-700 border-violet-500/20 dark:text-violet-300',
+  'bg-rose-500/8 text-rose-700 border-rose-500/20 dark:text-rose-300',
+];
 ---
 
 <Base
@@ -51,7 +128,6 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
     <div class="mb-6">
       <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Platforms</span>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-16 stagger">
       {Object.entries(platformMap).map(([platform, probs]) => (
         <a
@@ -77,8 +153,7 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
     <div class="mb-6">
       <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Browse by tag</span>
     </div>
-
-    <div class="reveal flex flex-wrap gap-2">
+    <div class="reveal flex flex-wrap gap-2 mb-16">
       {sortedTags.map(([tag, count]) => (
         <a
           href={'/cp/tags/' + tag}
@@ -89,6 +164,37 @@ const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
         </a>
       ))}
     </div>
+
+    {!cfFetchError && cfBands.length > 0 && (
+      <div class="reveal">
+        <div class="mb-6">
+          <span class="text-[11px] uppercase tracking-widest font-medium text-ink-faint">Codeforces — topics by rating</span>
+        </div>
+        <div class="space-y-8">
+          {cfBands.map((band, idx) => (
+            <div>
+              <div class="flex items-baseline gap-2 mb-3">
+                <span class={`text-[13px] font-medium ${bandAccentClasses[idx]}`}>
+                  {band.label}
+                </span>
+                <span class="text-[11px] text-ink-faint">{band.count} problems</span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                {band.tags.map(tag => (
+                  <span
+                    class={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md border ${bandTagClasses[idx]}`}
+                    style={`opacity: ${tag.weight}`}
+                  >
+                    {tag.name}
+                    <span class="opacity-60">{tag.count}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
 
   </div>
 </Base>
