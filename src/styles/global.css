@@ -13,34 +13,30 @@
 }
 
 .dark {
-  --surface: 12 12 11;
-  --surface-secondary: 20 20 19;
+  --surface: 28 28 28;           /* #1c1c1c */
+  --surface-secondary: 36 36 36; /* slightly lighter for secondary surfaces */
   --ink: 240 239 236;
   --ink-muted: 160 158 153;
   --ink-faint: 100 99 96;
-  --accent: 96 165 250;
-  --border: 38 37 35;
+  --accent: 214 239 255;         /* #D6EFFF */
+  --border: 48 48 48;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-
   html {
     @apply bg-surface text-ink antialiased;
     font-feature-settings: 'rlig' 1, 'calt' 1, 'ss01' 1;
     scroll-behavior: smooth;
   }
-
   body {
     @apply font-sans text-[15px] leading-relaxed;
   }
-
   ::selection {
     @apply bg-accent/20 text-ink;
   }
-
   /* Blog prose styles */
   .prose {
     @apply text-ink/90 leading-[1.85] text-[15px];
@@ -79,7 +75,6 @@
   .prose strong {
     @apply text-ink font-medium;
   }
-
   /* Shiki code block overrides */
   .astro-code {
     @apply rounded-lg text-sm overflow-x-auto my-6 p-5;
