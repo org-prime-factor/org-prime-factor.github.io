@@ -1,0 +1,113 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog', ({ data }) =>
+  !data.draft && data.series === 'computer-networks'
+);
+
+// Group by chapter
+const chapters = allPosts.reduce((acc, post) => {
+  const key = post.data.chapter ?? 0;
+  if (!acc[key]) {
+    acc[key] = {
+      number: key,
+      title: post.data.chapterTitle ?? `Chapter ${key}`,
+      posts: [],
+    };
+  }
+  acc[key].posts.push(post);
+  return acc;
+}, {} as Record<number, { number: number; title: string; posts: typeof allPosts }>);
+
+const sortedChapters = Object.values(chapters).sort((a, b) => a.number - b.number);
+sortedChapters.forEach(ch => {
+  ch.posts.sort((a, b) => (a.data.part ?? 0) - (b.data.part ?? 0));
+});
+
+const totalPosts = allPosts.length;
+---
+
+<Base
+  title="Computer Networks — Shahed Ali"
+  description="A structured series on computer networks — from HTTP to TCP/IP, DNS, routing, and beyond."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16">
+
+    <!-- Header -->
+    <div class="mb-12 opacity-0 animate-fade-up" style="animation-fill-mode: forwards;">
+      <div class="flex items-center gap-2 mb-4">
+        <a href="/blog" class="text-[12px] text-ink-faint hover:text-ink-muted transition-colors">Blog</a>
+        <span class="text-ink-faint text-[12px]">/</span>
+        <span class="text-[12px] text-ink-muted">Computer Networks</span>
+      </div>
+
+      <div class="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+        Series · {totalPosts} {totalPosts === 1 ? 'post' : 'posts'} · {sortedChapters.length} {sortedChapters.length === 1 ? 'chapter' : 'chapters'}
+      </div>
+
+      <h1 class="text-[28px] font-medium tracking-tight text-ink mb-3">Computer Networks</h1>
+      <p class="text-[14px] text-ink-muted leading-relaxed max-w-lg">
+        A bottom-up walkthrough of how networks actually work — application protocols, transport guarantees,
+        IP routing, and the physical layer. Written as I learn, grounded in what actually matters.
+      </p>
+    </div>
+
+    <!-- Chapters -->
+    <div class="space-y-10">
+      {sortedChapters.map((chapter, ci) => (
+        <div class="reveal" style={`transition-delay: ${ci * 80}ms`}>
+          <!-- Chapter header -->
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-[11px] font-mono text-ink-faint tabular-nums">
+              CH{String(chapter.number).padStart(2, '0')}
+            </span>
+            <div class="h-px flex-1 bg-border" />
+            <span class="text-[13px] font-medium text-ink">{chapter.title}</span>
+          </div>
+
+          <!-- Posts in chapter -->
+          <div class="divide-y divide-border pl-0 sm:pl-8">
+            {chapter.posts.map((post, pi) => {
+              const date = new Intl.DateTimeFormat('en-GB', {
+                day: 'numeric', month: 'short', year: 'numeric',
+              }).format(post.data.date);
+
+              return (
+                <a
+                  href={`/blog/${post.slug}`}
+                  class="group flex items-center justify-between gap-6 py-4 hover:bg-surface-secondary -mx-3 px-3 rounded-lg transition-colors"
+                >
+                  <div class="flex items-start gap-3 min-w-0">
+                    <span class="text-[11px] font-mono text-ink-faint tabular-nums shrink-0 mt-0.5">
+                      {String(chapter.number).padStart(2,'0')}.{String(pi + 1).padStart(2,'0')}
+                    </span>
+                    <div class="min-w-0">
+                      <div class="text-[14px] font-medium text-ink leading-snug group-hover:text-accent transition-colors">
+                        {post.data.title}
+                      </div>
+                      <div class="text-[12px] text-ink-faint mt-0.5 line-clamp-1">
+                        {post.data.description}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="shrink-0 flex flex-col items-end gap-1">
+                    <span class="text-[11px] text-ink-faint">{post.data.readTime ?? '5 min'}</span>
+                    <span class="text-[11px] text-ink-faint">{date}</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {totalPosts === 0 && (
+      <p class="text-[14px] text-ink-faint text-center py-16">
+        First post coming soon.
+      </p>
+    )}
+  </div>
+</Base>

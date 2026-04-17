@@ -12,6 +12,15 @@ const TAG_COLORS: Record<string, string> = {
   Algorithms: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
   GraphQL: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
   Discipline: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  'Computer Networks': 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+};
+
+const SERIES_META: Record<string, { label: string; href: string; color: string }> = {
+  'computer-networks': {
+    label: 'CN Series',
+    href: '/blog/cn',
+    color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20',
+  },
 };
 
 function tagColor(tag: string) {
@@ -37,6 +46,7 @@ function tagColor(tag: string) {
           day: 'numeric', month: 'short', year: 'numeric',
         }).format(post.data.date);
         const tag = post.data.tags[0];
+        const seriesMeta = post.data.series ? SERIES_META[post.data.series] : null;
 
         return (
           <a
@@ -45,10 +55,20 @@ function tagColor(tag: string) {
             style={`transition-delay: ${i * 60}ms`}
           >
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-2">
-                {tag && (
+              <div class="flex items-center gap-2 mb-2 flex-wrap">
+                {seriesMeta && (
+                  <span class={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded ${seriesMeta.color}`}>
+                    {seriesMeta.label}
+                  </span>
+                )}
+                {tag && !seriesMeta && (
                   <span class={`text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded ${tagColor(tag)}`}>
                     {tag}
+                  </span>
+                )}
+                {post.data.chapter && post.data.part && (
+                  <span class="text-[10px] font-mono text-ink-faint">
+                    {String(post.data.chapter).padStart(2,'0')}.{String(post.data.part).padStart(2,'0')}
                   </span>
                 )}
                 <span class="text-[12px] text-ink-faint">{date}</span>
